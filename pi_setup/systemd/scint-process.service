@@ -1,0 +1,11 @@
+[Unit]
+Description=scint-process: per-minute S4 / sigma-phi from 20 Hz raw GNSS hours, then gzip them
+
+[Service]
+Type=oneshot
+User=YOUR_USER
+Nice=10
+IOSchedulingClass=idle
+ExecStart=/usr/bin/python3 /home/YOUR_USER/gnss-scint/scint_process.py
+StandardOutput=append:/home/YOUR_USER/gnss-scint/scint_process.log
+StandardError=append:/home/YOUR_USER/gnss-scint/scint_process.log

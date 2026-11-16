@@ -1,0 +1,11 @@
+[Unit]
+Description=flare-logger: GOES X-ray flux + flare list poll, home TEC flare-response analysis
+Wants=network-online.target
+After=network-online.target
+[Service]
+Type=oneshot
+User=YOUR_USER
+WorkingDirectory=/home/YOUR_USER/flare_logger
+ExecStart=/home/YOUR_USER/flare_logger/venv/bin/python flare_logger.py poll
+TimeoutStartSec=15min
+Nice=10

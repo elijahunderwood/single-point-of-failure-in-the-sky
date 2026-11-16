@@ -1,0 +1,13 @@
+# Kp: GFZ Potsdam (kp.gfz.de), daily max of the 3-hourly Kp. Dst: Kyoto WDC hourly minimum
+# (provisional for 2023-2025, real-time "quicklook" for 2026). All values checked on 10 Oct 2026.
+storms:
+  - {name: may2024,  kind: severe,   days: [2024-05-10, 2024-05-11, 2024-05-12], kp_max: 9.0,  dst_min: -406, note: "Gannon superstorm, G5; Kp 9.0 on 11 May; Dst -406 nT on 11 May"}
+  - {name: oct2024,  kind: severe,   days: [2024-10-10, 2024-10-11],             kp_max: 8.67, dst_min: -333, note: "G4; Kp 8.67 on 10 Oct; Dst -333 nT on 11 Oct"}
+  - {name: nov2025,  kind: severe,   days: [2025-11-12, 2025-11-13],             kp_max: 8.67, dst_min: -217, note: "G4; Kp 8.67; Dst -217 nT (provisional) on 12 Nov"}
+  - {name: apr2023,  kind: severe,   days: [2023-04-23, 2023-04-24],             kp_max: 8.33, dst_min: -213, note: "G4; Dst -213 nT on 24 Apr"}
+  - {name: aug2024,  kind: strong,   days: [2024-08-12],                          kp_max: 8.0,  dst_min: -188, note: "G4; Dst -188 nT"}
+  - {name: jun2025,  kind: strong,   days: [2025-06-01, 2025-06-02],             kp_max: 7.67, dst_min: -119, note: "G3/G4; Dst -119 nT"}
+  - {name: oct2026,  kind: moderate, days: [2026-10-04, 2026-10-05],             kp_max: 5.67, dst_min: -60,  note: "Elijah's storm; GFZ Kp 5.67 (4 Oct); Kyoto real-time Dst -60 nT"}
+  - {name: quiet_may2024, kind: quiet, days: [2024-05-22], kp_max: 1.67, dst_min: -12, note: "sum Kp 6.0 - quietest day of May 2024; season-matched control for may2024"}
+  - {name: quiet_oct2024, kind: quiet, days: [2024-10-25], kp_max: 1.0,  dst_min: 3,   note: "sum Kp 3.3; control for oct2024"}
+  - {name: quiet_oct2026, kind: quiet, days: [2026-10-02], kp_max: 1.67, dst_min: -5,  note: "sum Kp 4.3; Elijah's quiet control"}

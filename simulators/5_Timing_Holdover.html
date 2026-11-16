@@ -1,0 +1,374 @@
+<!DOCTYPE html><html lang="en-GB"><head><meta charset="utf-8"><title>When the satellite clock goes quiet: timing holdover</title>
+<style>*{box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#eef2f6;color:#1b2a38}
+h1{font-size:22px;margin:10px 16px 2px}.sub{margin:0 16px 8px;color:#456;font-size:15px}
+#wrap{display:flex;gap:14px;padding:0 16px 8px;align-items:flex-start}
+.card{background:#fff;border:1px solid #bcc;border-radius:6px;padding:7px 10px;margin-bottom:7px;font-size:15px}
+label{font-weight:bold;display:block;margin-top:4px;font-size:15px}select,input[type=range]{width:100%;font-size:15px}
+select{padding:4px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.btns button,button.b{padding:8px 12px;border:2px solid #34495e;background:#fff;border-radius:6px;cursor:pointer;font-size:15px;font-weight:bold;color:#34495e}
+.btns button.on,button.b.on{background:#34495e;color:#fff}
+.big{font-size:28px;font-weight:bold}.row{display:flex;justify-content:space-between;margin:3px 0;gap:8px}
+.ok{color:#1e8449}.bad{color:#c0392b}.warn{color:#b9770e}
+.foot{margin:0 16px 10px;font-size:12.5px;color:#34495e;background:#fff;border:1px solid #bcc;border-radius:6px;padding:7px 10px;line-height:1.4}
+.tag{display:inline-block;padding:1px 6px;border-radius:4px;color:#fff;font-weight:bold;font-size:11.5px;margin-right:4px}
+.tm{background:#1e8449}.tp{background:#2471a3}.ti{background:#d68910}.ta{background:#8e44ad}
+.stp{border-left:4px solid #ccd;padding:3px 0 3px 7px;margin:4px 0;opacity:.55}.stp.now{opacity:1;border-left-color:#c0392b;background:#fdf2f0}.stp.done{opacity:1}
+.stp .t{font-weight:bold;font-size:12.5px;color:#456}.stp .h{font-weight:bold}
+ul.inc{margin:3px 0 0 18px;padding:0}ul.inc li{margin-bottom:4px}
+canvas{border:2px solid #34495e;border-radius:6px;background:#fff;display:block}
+#tabs{margin:0 16px 8px}
+#clk{font-size:32px;font-weight:bold;font-variant-numeric:tabular-nums}
+.sys{background:#fff;border:2px solid #34495e;border-radius:6px;padding:8px 10px;margin-bottom:8px;width:660px}
+.sys .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sys .nm{font-weight:bold;font-size:16px}.sys .lim{font-size:13px;color:#456}
+.sys select{width:230px;font-size:13.5px;padding:2px}
+.bar{position:relative;height:22px;background:#e5e8ec;border-radius:4px;overflow:hidden;margin:5px 0 3px}
+.bar>div{height:100%;transition:width .08s}
+.bar .lm{position:absolute;top:0;bottom:0;width:3px;background:#1b2a38;left:66.6%}
+.st{font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.arg{border:2px dashed #d68910;background:#fef5e7;border-radius:6px;padding:6px 9px;font-size:13.5px;line-height:1.35;margin-bottom:7px}
+table.g{border-collapse:collapse;width:100%;font-size:14px}table.g td,table.g th{border:1px solid #ccd;padding:4px 5px;text-align:center}
+table.g th{background:#eef2f6;white-space:nowrap}table.g td{white-space:nowrap}table.g td:first-child{text-align:left}
+.y{background:#d5f5e3;color:#1e8449;font-weight:bold}.n{background:#fadbd8;color:#c0392b;font-weight:bold}
+details.src{margin:0 16px 12px;background:#fff;border:1px solid #bcc;border-radius:6px;padding:6px 10px;font-size:12.5px;line-height:1.4}
+details.src summary{font-weight:bold;cursor:pointer;font-size:14px}
+details.src li{margin-bottom:3px}
+.hide{display:none!important}
+</style><style>#topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:6px 16px 0;font:13px Arial,Helvetica,sans-serif}#topbar a{color:#2471a3;text-decoration:none;font-weight:bold;padding:2px 6px;border:1px solid #bcc;border-radius:5px;background:#fff}#topbar a:hover{background:#eaf2f8}#hint{color:#6b7c8c;font-size:12px}</style></head><body><div id="topbar"><a href="index.html">&larr; Back to menu</a><span id="hint">Arrow keys / knob to adjust, F for full screen</span></div>
+<h1>When the satellite clock goes quiet: how long can systems keep time on their own?</h1>
+<p class="sub">Phone masts, power substations and trading computers set their clocks from satellite navigation (GNSS) time. If GNSS is lost, each one falls back on its own internal clock, which slowly drifts.</p>
+<div id="tabs" class="btns"><button id="tA" class="b on">1. Clock drift</button><button id="tB" class="b">2. Holdover timer</button><button id="tC" class="b">3. What happens to a phone mast</button></div>
+
+<!-- VIEW A: clock drift -->
+<div id="vA"><div id="wrap">
+<div id="rows"></div>
+<div style="width:430px">
+<div class="card">
+<div class="btns"><button id="lost" class="b on">&#128225; GNSS lost: start</button><button id="pause" class="b">Pause</button><button id="reset" class="b">Reset</button></div>
+<div class="row" style="margin-top:6px;align-items:center"><span>Time without GNSS</span><span id="clk">0 min</span></div>
+<label>Or drag: 1 minute to 7 days</label>
+<input id="ts" type="range" min="0" max="1000" step="1" value="0">
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#456"><span>1 min</span><span>1 hour</span><span>1 day</span><span>7 days</span></div>
+<div id="storm" style="font-size:13.5px;margin-top:5px"></div>
+</div>
+<div class="card" style="font-size:14px;line-height:1.35"><b>How to read the bars</b><br>The black line is each system's <b>limit</b>: how far its clock may be from true time. The bar grows as the clock drifts and turns <span class="bad"><b>red</b></span> once the limit is broken. Change the clock type in each box to compare.</div>
+<div class="arg"><b>Why all the clocks drift at once.</b> A space weather disturbance hits every GNSS receiver in a region at the same moment (a <i>common-mode</i> failure). So every system starts running on its own clock together, and nobody can borrow good time from a neighbour.<br><span id="kpn"></span></div>
+</div></div></div>
+
+<!-- VIEW B: holdover timer -->
+<div id="vB" class="hide"><div id="wrap">
+<div><canvas id="c" width="660" height="400"></canvas>
+<div style="font-size:12.5px;color:#456;width:660px;margin-top:4px">Each bar runs from the moment GNSS is lost until the limit is broken (typical figure). The thin whisker shows the published range, from a good case to a poor case.</div></div>
+<div style="width:430px">
+<div class="card">
+<label>System</label><select id="sysB"></select>
+<label>Clock type</label><select id="oscB"></select>
+<div class="row" style="margin-top:8px;align-items:baseline"><span>Holds its limit for about</span><span id="hold" class="big"></span></div>
+<div class="bar" style="height:18px"><div id="cd" style="width:100%;background:#27ae60"></div></div>
+<div id="cdt" style="font-size:13px;color:#456"></div>
+<div id="rng" style="font-size:13.5px;margin-top:3px"></div>
+<div class="btns" style="margin-top:6px"><button id="go" class="b on">&#9654; Count down (fast)</button></div>
+</div>
+<div class="card"><b>Still within its limit?</b> <span id="gsys" style="font-size:13.5px"></span>
+<table class="g" id="grid"></table>
+<div style="font-size:12.5px;color:#456;margin-top:3px">&#10003; = still within its limit, &#10007; = limit broken. Typical figures. A superstorm could leave GNSS partly or fully unusable for <b>1&ndash;3 days</b> (Royal Academy of Engineering 2013).</div>
+</div>
+</div></div></div>
+
+<!-- VIEW C: what happens to a phone mast -->
+<div id="vC" class="hide"><div id="wrap">
+<div><canvas id="cC" width="660" height="440"></canvas>
+<div style="font-size:12.5px;color:#456;width:660px;margin-top:4px">The time axis is stretched (each step is longer than the last). The red line is &ldquo;now&rdquo; in the playback. Press Play, or click on the chart to jump to a time.</div>
+<div class="card" style="width:660px;margin-top:7px;font-size:13.5px;line-height:1.35"><b>What has actually been reported</b> <span class="tag tp">PUBLISHED</span>
+<ul class="inc">
+<li><b>San Diego, January 2007.</b> A naval exercise accidentally jammed GPS for about 2 hours. Two mobile operators lost GPS at city-centre masts, switched to other ways of keeping time, and reported <b>no loss of service</b> to customers (US Coast Guard). [20]</li>
+<li><b>A mobile operator, case study.</b> GPS jammers in two nearby vans kept putting the operator's timing unit into holdover, for a few minutes to a few hours at a time. It had rubidium backup clocks, so service was <b>not affected</b>. [21]</li>
+<li><b>Worldwide, 26 January 2016.</b> Half the GPS satellites broadcast a time correction about 13 &micro;s wrong. Telecoms firms saw about <b>12 hours of alarms</b> (thousands at some firms) and some digital radio and TV transmitters failed, but no effects were reported that the public would notice, probably thanks to backup clocks. [22]</li>
+<li><b>One national mobile network (country and year not given).</b> An old GPS receiver software fault, triggered when a new satellite started broadcasting, crashed the receivers at about 100 sites within minutes. Mobile service <b>failed completely</b> and the network was down for weeks until the receivers were replaced. This was a receiver fault, not space weather, but it shows a <i>common-mode</i> failure. [19]</li>
+<li><b>Space weather.</b> I found <b>no documented case</b> of a mobile network failing because of space weather. Solar radio bursts that can make GNSS receivers lose lock last about 20 minutes each. [9, 24]</li>
+<li><b>In the UK.</b> 5G in the 3.4&ndash;3.8 GHz band must use TDD, with every operator's frames starting at a common reference time. [23] In 2013 the Royal Academy of Engineering found UK mobile networks were not reliant on GPS, but named TDD 4G as a possible exception. [24] I could not find out how each UK operator gets its 5G time today.</li>
+</ul></div>
+</div>
+<div style="width:430px">
+<div class="card">
+<label>Clock inside the mast (same choice as tab 2)</label><select id="oscC"></select>
+<label>Type of mast</label><select id="mtC"><option value="tdd">TDD: one channel, taking turns (UK 5G, 3.4&ndash;3.8 GHz)</option><option value="fdd">FDD: separate send and listen channels (many 4G masts)</option></select>
+<label>When its clock goes past the limit, the mast is set to</label><select id="actC"><option value="off">Switch its cells off (one maker's documented setting)</option><option value="on">Keep transmitting (as in the interference study)</option></select>
+<label>How long GNSS is lost: <span id="outL"></span></label>
+<input id="outS" type="range" min="0" max="1000" step="1" value="0">
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#456"><span>1 min</span><span>1 hour</span><span>1 day</span><span>7 days</span></div>
+<div class="btns" style="margin-top:4px" id="preC"><button class="b" data-o="1200">Radio burst (20 min)</button><button class="b" data-o="10800">Jamming (3 h)</button><button class="b" data-o="259200">Superstorm (3 days)</button></div>
+<div class="btns" style="margin-top:6px"><button id="playC" class="b on">&#9654; Play</button></div>
+<div class="row" style="margin-top:6px"><span>Time since GNSS was lost</span><b id="nowC"></b></div>
+<div class="row"><span>Mast clock error now</span><b id="errC"></b></div>
+</div>
+<div class="card" id="stepsC" style="font-size:13.5px;line-height:1.35"></div>
+</div></div></div>
+
+<div class="foot"><span class="tag ti">ARGUED, NOT MEASURED</span><b>Timing effects are argued, not measured.</b> My data (TEC and ROTI) measures disturbance to <i>positioning</i> signals, not timing errors. This demo shows what <i>would</i> happen if GNSS time were lost. Real systems often have holdover clocks and other backups (some UK mobile networks do not rely on GNSS timing at all), and holdover figures are typical, not guaranteed: temperature, age and how long the clock was locked all matter.
+<span class="tag tp">PUBLISHED</span>Limits: ITU-T G.8271 (phone masts), IEEE C37.118.1 (grid measurements), UK and EU business-clock rules (trading), ITU-T G.8272.1 (lab reference). Clock drift after one day: published oscillator figures (see Sources).
+<span class="tag ta">ARGUED</span>Tab 3: steps marked argued are my reasoning from how the networks are designed, not something a source reports happening. Tab 3 uses published limits and one maker's documented behaviour; real masts vary by maker and by the operator's settings.
+<span class="tag ti">ILLUSTRATIVE</span>The shape of each drift curve between the published points is simplified (see Sources). <span class="tag tm">MY DATA</span>Kp threshold: logistic fit to 152 three-hour blocks at Morpeth (stand-in for Belfast).</div>
+
+<details class="src"><summary>Sources: every number in this demo</summary>
+<ol>
+<li><b>Phone mast (4G/5G TDD) limit: &plusmn;1.5 &micro;s</b> from a common reference. ITU-T Recommendation G.8271 (03/2020), Table 1, Class 4 (LTE-TDD small cell, NR TDD). <a href="https://www.itu.int/rec/T-REC-G.8271-202003-I/en" target="_blank">itu.int</a></li>
+<li><b>Power substation (grid measurement unit) limit: 31.8 &micro;s at 50 Hz</b>. IEEE C37.118.1 allows 1% total vector error; with no other error, that equals 0.573&deg; of phase, which is 31.8 &micro;s at 50 Hz. The recommended accuracy is 1 &micro;s, so 31.8 &micro;s is the most it could ever tolerate. Goldstein (NIST), ATIS timing workshop 2018. <a href="https://wsts.atis.org/wp-content/uploads/2018/11/1-3_NIST_Goldstein_Time-Sync-in-Electrical-Power.pdf" target="_blank">atis.org</a></li>
+<li><b>Fast (high-frequency) trading limit: 100 &micro;s from UTC</b>; other automated trading 1 ms; voice trading 1 s. UK version of Delegated Regulation 2017/574 (RTS 25), Annex Table 2, kept in the UK FCA Handbook. In the EU it was replaced in March 2026 by Regulation 2025/1155, which keeps the 100 &micro;s limit. <a href="https://www.legislation.gov.uk/eur/2017/574/annex" target="_blank">legislation.gov.uk</a>, <a href="https://handbook.fca.org.uk/glossary/G3580m" target="_blank">FCA Handbook</a></li>
+<li><b>Lab-grade reference limit: 100 ns, holdover 14 days</b> (enhanced primary reference time clock). ITU-T G.8272.1. Drawn as a straight line up to 100 ns at 14 days, so it shows the <i>required</i> worst case, not a typical clock. It is not extended beyond 14 days. <a href="https://www.itu.int/epublications/publication/itu-t-g-8272-1-2024-amd-1-2025-07" target="_blank">itu.int</a></li>
+<li><b>Basic crystal clock (TCXO): drift in the first day.</b> Typical used here: <b>400 &micro;s</b> (time-server maker's options datasheet A). Good case: <b>222 &micro;s</b> (chip maker's lab test at steady temperature, application note AN1208; it broke the 1.5 &micro;s limit after 0.36 hours). Poor case: <b>10 ms</b> (time-server maker's datasheet B). <a href="https://ww1.microchip.com/downloads/en/DeviceDoc/00002920B.pdf" target="_blank">A</a>, <a href="https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/an1208-osc-ieee-1588v2-requirements.pdf" target="_blank">lab test</a>, <a href="https://endruntechnologies.com/pdf/OscOptionsTS.pdf" target="_blank">B</a></li>
+<li><b>Oven-controlled crystal clock (OCXO): first day.</b> Typical: <b>25 &micro;s</b> (datasheet A). Good case: <b>0.5 &micro;s</b> (ATIS timing workshop 2018: best crystals 0.5&ndash;2 &micro;s in 24 h at steady temperature). Poor case: <b>80 &micro;s</b> (datasheet B). Cross-check: in the lab test above, an OCXO broke the 1.5 &micro;s limit after 3.4 hours; this demo gives about 2.6 hours. <a href="https://wsts.atis.org/wp-content/uploads/2018/10/6_03_Microsemi_Krzwich_Atomic-versus-Crystal-Oscillators.pdf" target="_blank">ATIS 2018</a></li>
+<li><b>Rubidium atomic clock: first day.</b> Typical: <b>1 &micro;s</b> (datasheet A: under 1 &micro;s in the first 24 hours and under 3 &micro;s after three days). Good case: <b>0.1 &micro;s</b> (ATIS 2018, best rubidium type, steady temperature). Poor case: <b>5 &micro;s</b> (datasheet B).</li>
+<li><b>Superstorm GNSS outage: 1&ndash;3 days</b>; recommendation that critical systems have holdover for up to three days; UK mobile networks found to be less reliant on GNSS timing than some other countries'. Royal Academy of Engineering (2013), <i>Extreme space weather</i>. <a href="https://raeng.org.uk/media/lz2fs5ql/space_weather_full_report_final.pdf" target="_blank">raeng.org.uk</a></li>
+<li><b>Common-mode example:</b> intense solar radio bursts in December 2006 made GPS receivers across the sunlit side of Earth lose tracking at the same time. Cerruti et al. (2008), <i>Space Weather</i> 6, S10D07.</li>
+<li><b>Kp threshold (my data):</b> 50% chance of a disturbed 3-hour block at Kp 7.7 (95% confidence interval 7.4&ndash;8.0), Morpeth, 152 blocks over 19 days. Disturbed = more than 2% of satellite windows with ROTI above 0.5 TECU/min.</li>
+<li><b>How the curves are drawn (illustrative).</b> Time error = (first-day figure) &times; [&frac12;&nbsp;d + &frac12;&nbsp;d&sup2;] for the crystal clocks, where d is days since GNSS was lost (half a steady frequency offset, half ageing), and a straight line for rubidium and the lab reference. Only the one-day values are published; the shape in between is a simplification. It agrees roughly with the lab test times in sources 5 and 6.</li>
+<li><b>Phone mast timing in 4G and 5G (tab 3).</b> Neighbouring TDD cells must start their frames within <b>3 &micro;s</b> of each other (3GPP TS 38.133, the same as 4G), which is shared out as <b>&plusmn;1.5 &micro;s</b> each from a common time. The time arriving at the mast must be within &plusmn;1.1 &micro;s, leaving 400 ns for the mast itself. Holdover on the mast's own clock lasts &ldquo;up to a few hours for a TDD base station&rdquo;. FDD networks also need time when certain coordination features are used. Ruffini, Johansson, Pohlman and Sandgren (2021), technical review by a network equipment maker. <a href="https://www.ericsson.com/en/reports-and-papers/ericsson-technology-review/articles/5g-synchronization-requirements-and-solutions" target="_blank">article</a></li>
+<li><b>Frequency limit: &plusmn;0.05 ppm (50 parts per billion)</b> for a wide-area 5G mast (&plusmn;0.1 ppm for smaller ones). 3GPP TS 38.104, Table 6.5.1.2-1. A network equipment maker's white paper says &plusmn;50 ppb applies to 4G and 5G whatever the application, and that missing the TDD timing limit &ldquo;can result in poor signal quality, lower data speeds, interference and network outages&rdquo;. <a href="https://www.3gpp.org/FTP/specs/PDF/2026-09/Rel-18/38_series/38104-if0.pdf" target="_blank">3gpp.org</a>, <a href="https://www.nokia.com/asset/f/210982/" target="_blank">white paper</a></li>
+<li><b>Time budget: 1.1 &micro;s network limit for a 1.5 &micro;s mast limit.</b> ITU-T G.8271.1 (2022, amendments 2023&ndash;2025). It notes that a long loss of GNSS can break both limits. <a href="https://www.itu.int/rec/T-REC-G.8271.1" target="_blank">itu.int</a></li>
+<li><b>Mast switches its TDD cells off when its clock runs free; FDD carries on.</b> One maker's base station synchronisation guide: &ldquo;A TDD base station cannot work in free running mode. After the base station enters the free running mode, cells served by the base station are automatically deactivated. These cells are automatically activated only after the base station re-enters the locked mode.&rdquo; Also: an FDD base station &ldquo;can work properly in holdover mode for 90 days&rdquo;, and the holdover time for TDD depends on the clock type. I could read only quoted extracts of this document, not the whole thing. <a href="https://www.scribd.com/document/686951815/Huawei-5G-RAN-synchronization" target="_blank">copy of guide</a></li>
+<li><b>&ldquo;Must be taken out of service quickly&rdquo;.</b> A timing-equipment maker's article: 5G radios use low-cost clocks, so a radio with its own GNSS receiver that loses GNSS &ldquo;must be taken out of service quickly before it begins interfering with adjacent radios&rdquo;. The radio clocks can hold the 50 ppb frequency limit &ldquo;for several days&rdquo;. Masts fed from one shared network clock drift together, which avoids the clash. Olsen (2024), <i>Microwaves &amp; RF</i>. <a href="https://www.mwrf.com/technologies/communications/wireless/article/21282206/microchip-technology-the-critical-role-of-timing-in-5g-networks" target="_blank">mwrf.com</a></li>
+<li><b>What users notice when TDD timing slips (measured on 3G TDD).</b> Ji, Liu and Dong (2010), a telecoms equipment maker's journal, vol. 8(2), pp. 43&ndash;47: when a TD-SCDMA mast lost GPS, timing differences of more than 4 chips made network quality &ldquo;deteriorate noticeably&rdquo; (handover failures, calls dropping during handover, fewer calls connecting), and more than 10 chips meant phones &ldquo;may fail to locate a neighbouring cell&rdquo;. One chip lasts 0.78 &micro;s (1.28 million chips per second), so 4 chips &asymp; <b>3.1 &micro;s</b> and 10 chips &asymp; <b>7.8 &micro;s</b> (my conversion). This was 3G; that 4G and 5G behave the same way is argued. <a href="https://zte.magtechjournal.com/EN/Y2010/V8/I2/43" target="_blank">abstract</a></li>
+<li><b>Re-locking takes minutes.</b> One maker's engineering note for older base stations: a returning clock source is watched for 260 s, then a GPS source must stay steady for more than 400 s before the clock starts tracking it. The demo adds these up to <b>11 minutes</b>, which is illustrative; newer equipment may differ. <a href="https://pdfcoffee.com/external-clock-reference-alarm-handling-pdf-free.html" target="_blank">note</a></li>
+<li><b>Alarms and holdover in GNSS clocks, and the national network failure.</b> Danielson (2016), <i>GPS incident on broadcast networks</i>, report for the US Civil GPS Service Interface Committee, sections 3.1 and 5.4; Danielson and Silverstein (2016), slides for the US GPS advisory board (&ldquo;PRN32 launch killed a national telecom network&rdquo;). <a href="https://rubidium.se/~magnus/papers/GPSincidentA6.pdf" target="_blank">report</a>, <a href="https://archive.gps.gov/governance/advisory/meetings/2016-05/danielson-silverstein.pdf" target="_blank">slides</a></li>
+<li><b>San Diego GPS jamming, 22 January 2007.</b> About 2 hours of jamming; two mobile operators lost GPS at downtown masts, used other timing, and reported no loss of service (US Coast Guard Navigation Center, quoted in the fact check). <i>GPS World</i>, April 2007; <i>Voice of San Diego</i> fact check, 10 June 2011. <a href="https://www.gpsworld.com/defensegps-insights-april-2007-8428/" target="_blank">GPS World</a>, <a href="https://voiceofsandiego.org/2011/06/10/fact-check-mysterious-outage-unleashes-s-d-chaos/" target="_blank">fact check</a></li>
+<li><b>Jammers near a mobile operator.</b> A UK timing company's case study (2026): the timing unit went into holdover for &ldquo;a few minutes to a few hours&rdquo;; rubidium clocks meant &ldquo;no real risk of the outages affecting service&rdquo;. <a href="https://gps-world.biz/wp-content/uploads/2025/12/Chronos-Telecom-Operator-Timing-Disrupted.pdf" target="_blank">case study</a></li>
+<li><b>26 January 2016 GPS time error.</b> 15 satellites broadcast a UTC correction about 13 &micro;s wrong; telecoms clients saw &ldquo;12 hours&rdquo; of system errors, with no consequences apparent to the public. BBC News, 4 February 2016; NIST paper on the effects on GPS clocks. <a href="https://www.bbc.com/news/technology-35491962" target="_blank">BBC</a>, <a href="https://tf.nist.gov/general/pdf/2886.pdf" target="_blank">NIST</a></li>
+<li><b>UK 5G rules.</b> Ofcom licence conditions for the 3.6&ndash;3.8 GHz band: TDD frame structure, and &ldquo;the Licensee shall ensure that frames start at a common reference time so that all licensees' frames are aligned and transmissions synchronised&rdquo;. The licence does not say where the time must come from. <a href="https://www.ofcom.org.uk/siteassets/resources/documents/consultations/category-1-10-weeks/129955-award-of-the-700-mhz-and-3.6-3.8-ghz-spectrum/associated-documents/secondary-documents/annexes-19-26-licences-and-licence-procedures.pdf" target="_blank">ofcom.org.uk</a></li>
+<li><b>Royal Academy of Engineering (2013) on mobile networks</b> (source 8, chapter 11): UK 3GPP networks &ldquo;were specifically designed not to require GPS support&rdquo;; TDD 4G is &ldquo;one potential exception&rdquo;; each solar radio burst lasts about 20 minutes; networks with critical uses should run without GNSS timing for up to three days.</li>
+<li><b>How tab 3 is worked out (illustrative).</b> It uses the same clock drift curves as tabs 1 and 2 (source 11) to find when the error passes 1.5, 3.1 and 7.8 &micro;s. Holdover is assumed to last until GNSS is back <i>and</i> the clock has re-locked (source 18). After re-locking, the error is shown as zero. Common-mode drift between neighbours is argued, not modelled.</li>
+</ol>
+Names of equipment makers are left out on purpose; the links go to their public documents.</details>
+
+<script>
+const B=[-13.100709072110421,1.7095880931985559]; // Morpeth fit, >2% of satellite windows disturbed
+const P=kp=>1/(1+Math.exp(-(B[0]+B[1]*kp)));
+const DAY=86400;
+// first-day time error (seconds): typical, good case (lo), poor case (hi); w = share of linear term
+const OSC={
+ tcxo:{n:'Basic crystal (TCXO)',E:400e-6,lo:222e-6,hi:10e-3,w:0.5,c:'#c0392b'},
+ ocxo:{n:'Oven crystal (OCXO)',E:25e-6,lo:0.5e-6,hi:80e-6,w:0.5,c:'#d68910'},
+ rb:{n:'Rubidium atomic clock',E:1e-6,lo:0.1e-6,hi:5e-6,w:1,c:'#2471a3'},
+ cs:{n:'Lab-grade reference',E:100e-9/14,lo:100e-9/14,hi:100e-9/14,w:1,c:'#1e8449',cap:14*DAY}
+};
+const SYS=[
+ {id:'mast',ic:'&#128246;',n:'Mobile phone mast (4G/5G)',L:1.5e-6,ls:'limit &plusmn;1.5 &micro;s (ITU-T G.8271)',why:'Neighbouring masts take turns to send and listen; if their clocks disagree, they talk over each other.',def:'ocxo'},
+ {id:'sub',ic:'&#9889;',n:'Power substation (grid measurement)',L:31.8e-6,ls:'limit 31.8 &micro;s at 50 Hz (IEEE C37.118.1)',why:'Grid measurements from different places are compared by time stamp; a clock error looks like a fake shift in the grid.',def:'tcxo'},
+ {id:'hft',ic:'&#128200;',n:'Fast trading computer',L:100e-6,ls:'limit 100 &micro;s from UTC (UK trading rules)',why:'Every trade must carry an accurate time stamp by law.',def:'ocxo'},
+ {id:'lab',ic:'&#128300;',n:'Lab-grade reference (optional)',L:100e-9,ls:'limit 100 ns over 14 days (ITU-T G.8272.1)',why:'Top-grade clock, shown for comparison.',def:'cs',opt:1}
+];
+const $=id=>document.getElementById(id);
+function TE(o,t,E){E=E??o.E;const d=t/DAY;return E*(o.w*d+(1-o.w)*d*d)}
+function hold(o,L,E){E=E??o.E;const r=L/E,w=o.w;if(o.cap)return Math.min(r*DAY,o.cap);if(w>=1)return r*DAY;return DAY*(-w+Math.sqrt(w*w+4*(1-w)*r))/(2*(1-w))}
+function nf(x){return x<10?x.toFixed(2):(x<100?x.toFixed(1):String(Math.round(x)))}
+function fe(s){if(s<1e-6)return nf(s*1e9)+' ns';if(s<1e-3)return nf(s*1e6)+' &micro;s';if(s<1)return nf(s*1e3)+' ms';return nf(s)+' s'}
+function ft(s){if(s<60)return Math.round(s)+' s';if(s<3600)return Math.round(s/60)+' min';if(s<DAY){const h=Math.floor(s/3600),m=Math.round((s-h*3600)/60);return h+' h'+(m&&h<10?' '+m+' min':'')}const d=s/DAY;if(d>=365)return 'over a year';return (d<10?d.toFixed(1):Math.round(d))+' days'}
+// ---------- View A ----------
+const TMIN=60,TMAX=7*DAY,sl2t=v=>TMIN*Math.pow(TMAX/TMIN,v/1000),t2sl=t=>1000*Math.log(t/TMIN)/Math.log(TMAX/TMIN);
+let t=0,run=false,showLab=true;
+const pick={};
+let h='';SYS.forEach(s=>{pick[s.id]=s.def;
+ h+=`<div class="sys" id="r_${s.id}"><div class="hd"><span><span style="font-size:20px">${s.ic}</span> <span class="nm">${s.n}</span><br><span class="lim">${s.ls}</span></span>`+
+ (s.opt?`<span style="font-size:13.5px">${OSC.cs.n}<br><label style="display:inline;font-weight:normal;font-size:13px"><input type="checkbox" id="labOn" checked> show</label></span>`:
+ `<select id="o_${s.id}">${['tcxo','ocxo','rb'].map(k=>`<option value="${k}"${k===s.def?' selected':''}>${OSC[k].n}</option>`).join('')}</select>`)+
+ `</div><div class="bar"><div id="b_${s.id}"></div><span class="lm"></span></div><div class="st"><span id="e_${s.id}"></span><span id="s_${s.id}"></span></div></div>`});
+$('rows').innerHTML=h;
+SYS.forEach(s=>{if(!s.opt)$('o_'+s.id).onchange=e=>{pick[s.id]=e.target.value;uiA()}});
+$('labOn').onchange=e=>{showLab=e.target.checked;uiA()};
+function uiA(){
+ $('clk').textContent=t<=0?'0 min':ft(t).replace('&micro;','µ');
+ SYS.forEach(s=>{const o=OSC[pick[s.id]],e=t>0?TE(o,t):0,r=e/s.L,hd=hold(o,s.L);
+  const b=$('b_'+s.id);b.style.width=Math.min(100,r*66.6)+'%';b.style.background=r>=1?'#c0392b':(r>0.5?'#f0b030':'#27ae60');
+  $('e_'+s.id).innerHTML=`Drift so far: <b>${t>0?fe(e):'0'}</b> of ${fe(s.L)} allowed`;
+  $('s_'+s.id).innerHTML=r>=1?`<b class="bad">LIMIT BROKEN after ${ft(hd)}</b>`:`<span class="ok">OK: lasts about ${o.cap&&hd>=o.cap?'14+ days':ft(hd)}</span>`;
+  $('r_'+s.id).style.opacity=(s.opt&&!showLab)?0.3:1;
+  $('r_'+s.id).style.borderColor=r>=1?'#c0392b':'#34495e'});
+ const tl=t/DAY;$('storm').innerHTML=tl>=1&&tl<=3?'&#9888; <b>Now inside the 1&ndash;3 day window</b> a superstorm could knock out GNSS (Royal Academy of Engineering 2013).':(tl>3?'Beyond the 1&ndash;3 day superstorm outage the Royal Academy of Engineering (2013) expected.':'A superstorm could leave GNSS partly or fully unusable for 1&ndash;3 days (Royal Academy of Engineering 2013).');
+}
+$('ts').oninput=e=>{t=sl2t(+e.target.value);run=false;uiA()};
+$('lost').onclick=()=>{if(t>=TMAX)t=0;if(t<TMIN)t=TMIN;run=true};
+$('pause').onclick=()=>{run=false};
+$('reset').onclick=()=>{run=false;t=0;$('ts').value=0;uiA()};
+$('kpn').innerHTML='<i>Context from my data, not an outage forecast:</i> at Morpeth (stand-in for Belfast), a disturbed 3-hour block becomes more likely than not above <b>Kp 7.7</b> (chance at Kp 7: '+Math.round(100*P(7))+'%; Kp 8: '+Math.round(100*P(8))+'%). That is disturbance to positioning signals, not proof that GNSS time is lost.';
+// ---------- View B ----------
+const cv=$('c'),g=cv.getContext('2d');
+SYS.forEach((s,i)=>$('sysB').add(new Option(s.n.replace(' (optional)',''),i)));
+['tcxo','ocxo','rb','cs'].forEach(k=>$('oscB').add(new Option(OSC[k].n,k)));
+$('oscB').value='ocxo';
+let cdRun=false,cdT=0;
+const AX0=Math.log10(60),AX1=Math.log10(365*DAY);
+const X=s=>{const L=175,R=640;const v=Math.log10(Math.max(60,Math.min(365*DAY,s)));return L+(R-L)*(v-AX0)/(AX1-AX0)};
+function drawB(){const s=SYS[+$('sysB').value];g.clearRect(0,0,660,400);
+ g.fillStyle='#1b2a38';g.font='bold 15px Arial';g.fillText('How long each clock type keeps this system within its limit: '+s.n.replace(' (optional)',''),12,24);
+ g.font='13px Arial';g.fillStyle='#456';g.fillText('Limit: '+fe(s.L).replace('&micro;','µ')+'. Time axis is stretched (each step is longer than the last).',12,44);
+ // superstorm band
+ g.fillStyle='rgba(214,137,16,0.15)';g.fillRect(X(DAY),58,X(3*DAY)-X(DAY),285);
+ g.fillStyle='#b9770e';g.font='bold 12px Arial';g.textAlign='center';g.fillText('Superstorm outage',(X(DAY)+X(3*DAY))/2,72);g.fillText('1–3 days',(X(DAY)+X(3*DAY))/2,86);
+ const ticks=[[60,'1 min'],[3600,'1 hour'],[DAY,'1 day'],[7*DAY,'1 week'],[30*DAY,'1 month'],[365*DAY,'1 year']];
+ g.font='12px Arial';ticks.forEach(([v,l])=>{const x=X(v);g.strokeStyle='#ccd';g.lineWidth=1;g.beginPath();g.moveTo(x,58);g.lineTo(x,343);g.stroke();g.fillStyle='#456';g.fillText(l,x,360)});
+ g.textAlign='left';
+ ['tcxo','ocxo','rb','cs'].forEach((k,i)=>{const o=OSC[k],y=100+i*62,hT=hold(o,s.L),hG=hold(o,s.L,o.lo),hP=hold(o,s.L,o.hi),sel=k===$('oscB').value;
+  g.fillStyle=sel?'#1b2a38':'#456';g.font=(sel?'bold ':'')+'13px Arial';
+  const nm=o.n.split(' (');g.fillText(nm[0],10,y+12);if(nm[1]){g.font='12px Arial';g.fillText('('+nm[1],10,y+28)}
+  const x0=X(60),x1=X(hT);g.fillStyle=o.c;g.globalAlpha=sel?1:0.55;g.fillRect(x0,y,Math.max(2,x1-x0),26);g.globalAlpha=1;
+  if(sel){g.strokeStyle='#1b2a38';g.lineWidth=2;g.strokeRect(x0,y,Math.max(2,x1-x0),26)}
+  if(k!=='cs'){g.strokeStyle='#1b2a38';g.lineWidth=1.5;const a=X(hP),b=X(hG);g.beginPath();g.moveTo(a,y+13);g.lineTo(b,y+13);g.moveTo(a,y+6);g.lineTo(a,y+20);g.moveTo(b,y+6);g.lineTo(b,y+20);g.stroke()}
+  g.fillStyle='#1b2a38';g.font='bold 13px Arial';const lab=hT<60?'under 1 min':(o.cap&&hT>=o.cap?'14+ days (only rated for 14)':ft(hT));const tx=Math.min(x1+6,650-g.measureText(lab).width);g.fillText(lab,hT<60?x0+6:tx,y+43)});
+ if(cdRun||cdT>0){const x=X(Math.max(60,cdT));g.strokeStyle='#c0392b';g.lineWidth=2;g.beginPath();g.moveTo(x,58);g.lineTo(x,343);g.stroke();g.fillStyle='#c0392b';g.font='bold 12px Arial';g.textAlign='center';g.fillText(ft(cdT),x,385);g.textAlign='left'}
+}
+function uiB(){const s=SYS[+$('sysB').value],o=OSC[$('oscB').value],hT=hold(o,s.L);
+ $('hold').textContent=hT<60?'< 1 min':(o.cap&&hT>=o.cap?'14+ days':ft(hT));
+ const rem=Math.max(0,hT-cdT),fr=cdT>0?rem/hT:1;$('cd').style.width=(100*fr)+'%';$('cd').style.background=fr<=0?'#c0392b':(fr<0.3?'#f0b030':'#27ae60');
+ $('cdt').innerHTML=cdT>0?(rem>0?'Time without GNSS: '+ft(cdT)+'. Left before the limit breaks: <b>'+ft(rem)+'</b>':'<b class="bad">Limit broken after '+ft(hT)+' without GNSS.</b>'):'Press Count down to watch it run out.';
+ $('rng').innerHTML=$('oscB').value==='cs'?'This is the <i>required</i> worst case for this clock type, not a typical figure.':'Published range: from <b>'+ft(hold(o,s.L,o.hi))+'</b> (poor case) to <b>'+ft(hold(o,s.L,o.lo))+'</b> (good case, steady temperature).';
+ $('gsys').textContent='('+s.n.replace(' (optional)','')+')';
+ const cols=[[60,'1 min'],[3600,'1 hour'],[DAY,'1 day'],[3*DAY,'3 days']];
+ let h='<tr><th>Clock type</th>'+cols.map(c=>'<th>'+c[1]+'</th>').join('')+'</tr>';
+ ['tcxo','ocxo','rb','cs'].forEach(k=>{const hk=hold(OSC[k],s.L);h+='<tr><td>'+OSC[k].n+'</td>'+cols.map(c=>hk>=c[0]?'<td class="y">&#10003;</td>':'<td class="n">&#10007;</td>').join('')+'</tr>'});
+ $('grid').innerHTML=h;drawB()}
+$('sysB').onchange=$('oscB').onchange=()=>{cdT=0;cdRun=false;$('go').innerHTML='&#9654; Count down (fast)';if($('oscC'))$('oscC').value=$('oscB').value;uiB();if(typeof uiC==='function')uiC()};
+$('go').onclick=()=>{const hT=hold(OSC[$('oscB').value],SYS[+$('sysB').value].L);if(cdT>=Math.min(hT,365*DAY))cdT=0;cdRun=!cdRun;$('go').innerHTML=cdRun?'Pause':'&#9654; Count down (fast)'};
+
+// ---------- View C: what happens to a phone mast ----------
+const LIM=1.5e-6,E3=4/1.28e6,E8=10/1.28e6,RELOCK=660,CMAX=30*DAY;
+const cc=$('cC'),gc=cc.getContext('2d');
+['tcxo','ocxo','rb','cs'].forEach(k=>$('oscC').add(new Option(OSC[k].n,k)));
+$('oscC').value=$('oscB').value;
+let out=3*3600,tc=0,cRun=false;
+$('outS').value=t2sl(out);
+const XC=s=>{const L=150,R=640,a=Math.log10(60),b=Math.log10(CMAX);const v=Math.log10(Math.max(60,Math.min(CMAX,s)));return L+(R-L)*(v-a)/(b-a)};
+const tagH={tp:'PUBLISHED',ta:'ARGUED',ti:'ILLUSTRATIVE'};
+const tg=(c)=>`<span class="tag ${c}">${tagH[c]}</span>`;
+function scen(){const o=OSC[$('oscC').value],tdd=$('mtC').value==='tdd',act=$('actC').value;
+ const T1=hold(o,LIM),T3=hold(o,E3),T8=hold(o,E8),tEnd=out+RELOCK;
+ return {o,tdd,act,T1,T3,T8,tEnd,over:tdd&&T1<tEnd}}
+function stepsC(S){const st=[];const ok=S.T1>=S.tEnd;
+ st.push({t:0,h:'GNSS lost: the mast runs on its own clock',x:'The mast\'s GNSS receiver loses the satellites. It carries on using its own clock (<i>holdover</i>) and sends an alarm to the operator\'s control room. Phone users notice nothing. A TDD mast can hold for "up to a few hours" on its own clock [12, 19].',c:['tp']});
+ if(!S.tdd){
+  st.push({t:60,h:'FDD mast: only its frequency matters',x:'An FDD mast needs its frequency within &plusmn;50 parts per billion [13], not exact time. Its clock can hold that "for several days" [16], and one maker\'s guide says an FDD base station works for 90 days with no reference [15]. Service carries on. (Some features that coordinate neighbouring masts do need time, and may stop [12].)',c:['tp']});
+ } else if(ok){
+  st.push({t:S.tEnd+0.5,h:'Holdover was long enough',x:`With this clock the error would only pass &plusmn;1.5 &micro;s after <b>${S.o.cap&&S.T1>=S.o.cap?'14+ days':ft(S.T1)}</b>, but GNSS is back and the clock has re-locked after ${ft(S.tEnd)}. Nobody would have noticed.`,c:['ti']});
+ } else {
+  st.push({t:S.T1,h:'Clock error passes the &plusmn;1.5 &micro;s limit',x:'Neighbouring TDD masts must start each frame within 3 &micro;s of each other, so each may be at most &plusmn;1.5 &micro;s from true time [1, 12].',c:['tp']});
+  if(S.act==='off'){
+   st.push({t:S.T1,h:'Mast switches its cells off',x:'So that it does not drown out its neighbours, the mast takes itself off air. One maker\'s guide says TDD cells switch off automatically once the clock runs free [15]; a timing maker says such a radio "must be taken out of service quickly" [16]. The exact trigger depends on the maker and the operator\'s settings.',c:['tp']});
+   st.push({t:S.T1,h:'What phone users notice',x:'Phones nearby move to other masts or other bands (such as 4G) if they can. Where there is no other signal, there is no service. If every mast in the area lost GNSS at once, many would switch off at about the same time.',c:['ta']});
+  } else {
+   st.push({t:S.T1,h:'Its signals start to spill into neighbours\' listening time',x:'Missing the limit "can result in poor signal quality, lower data speeds, interference and network outages" [13, 16]. Problems start at the edges of coverage, where phones hear two masts.',c:['tp']});
+   if(S.T3<S.tEnd)st.push({t:S.T3,h:'About 3.1 &micro;s: service gets noticeably worse',x:'Measured on a 3G TDD network: handover failures, calls dropping during handover, fewer calls connecting [17]. That 4G and 5G behave the same way is argued.',c:['tp','ta']});
+   if(S.T8<S.tEnd)st.push({t:S.T8,h:'About 7.8 &micro;s: phones may not find neighbouring masts',x:'Same 3G TDD study: phones "may fail to locate a neighbouring cell" [17].',c:['tp','ta']});
+  }
+ }
+ {
+  st.push({t:out,h:'GNSS comes back',x:'The clock does not trust it straight away. In one maker\'s older equipment a returning GPS signal is watched for several minutes before the clock starts tracking it [18]. Until then the mast stays on its own clock.',c:['tp','ti']});
+  if(!(S.tdd&&ok))st.push({t:S.tEnd,h:'Clock locked again: back to normal',x:S.tdd&&S.act==='off'?'The cells that were switched off come back on automatically once the clock is locked again [15].':'The mast\'s clock is steered back onto GNSS time and service returns to normal.',c:S.tdd&&S.act==='off'?['tp']:['ta']});
+ }
+ st.sort((a,b)=>a.t-b.t);return st}
+function seg(y,h,a,b,col,txt,tc2){if(b<=60||a>=CMAX)return;const x0=XC(Math.max(60,a)),x1=XC(Math.min(CMAX,b));gc.fillStyle=col;gc.fillRect(x0,y,Math.max(2,x1-x0),h);
+ if(txt&&x1-x0>40){gc.save();gc.beginPath();gc.rect(x0,y,x1-x0,h);gc.clip();gc.fillStyle=tc2||'#fff';gc.font='bold 12px Arial';gc.textAlign='left';gc.fillText(txt,x0+4,y+h/2+4);gc.restore()}}
+function drawC(S){gc.clearRect(0,0,660,440);
+ gc.fillStyle='#1b2a38';gc.font='bold 15px Arial';gc.textAlign='left';
+ gc.fillText('What a '+(S.tdd?'TDD':'FDD')+' phone mast does when GNSS is lost for '+ft(out),12,22);
+ gc.font='13px Arial';gc.fillStyle='#456';gc.fillText('Clock: '+S.o.n+'.  Limit: ±1.5 µs'+(S.tdd?'':' (not needed for FDD; frequency only)')+'.',12,40);
+ gc.fillStyle='rgba(214,137,16,0.15)';gc.fillRect(XC(DAY),52,XC(3*DAY)-XC(DAY),330);
+ gc.fillStyle='#b9770e';gc.font='bold 11px Arial';gc.textAlign='center';gc.fillText('Superstorm',(XC(DAY)+XC(3*DAY))/2,62);gc.fillText('1–3 days',(XC(DAY)+XC(3*DAY))/2,74);
+ const ticks=[[60,'1 min'],[600,'10 min'],[3600,'1 hour'],[6*3600,'6 h'],[DAY,'1 day'],[7*DAY,'1 week'],[CMAX,'30 days']];
+ gc.font='12px Arial';ticks.forEach(([v,l])=>{const x=XC(v);gc.strokeStyle='#ccd';gc.lineWidth=1;gc.beginPath();gc.moveTo(x,52);gc.lineTo(x,382);gc.stroke();gc.fillStyle='#456';gc.fillText(l,x,398)});
+ gc.textAlign='left';
+ const rows=[['GNSS signal',86],['Mast clock',136],['Phone users',186]];
+ rows.forEach(([n,y])=>{gc.fillStyle='#1b2a38';gc.font='bold 13px Arial';gc.fillText(n,10,y+18)});
+ // GNSS row
+ seg(86,26,0,out,'#7f8c8d','lost');seg(86,26,out,CMAX,'#27ae60','back');
+ // clock row
+ const hEnd=Math.min(S.T1,S.tEnd);
+ if(S.tdd){seg(136,26,0,hEnd,'#2471a3','own clock, within limit');if(S.over)seg(136,26,S.T1,S.tEnd,'#c0392b','past ±1.5 µs')}
+ else seg(136,26,0,S.tEnd,'#2471a3','own clock, frequency fine');
+ seg(136,26,S.tEnd,CMAX,'#27ae60','locked to GNSS');
+ if(out<S.tEnd){const x0=XC(out),x1=XC(S.tEnd);gc.strokeStyle='#8e44ad';gc.lineWidth=3;gc.beginPath();gc.moveTo(x0,166);gc.lineTo(x1,166);gc.stroke();gc.fillStyle='#8e44ad';gc.font='11px Arial';gc.fillText('re-locking',x0,177)}
+ // users row
+ if(!S.tdd||!S.over){seg(186,26,0,CMAX,'#27ae60','normal service')}
+ else{seg(186,26,0,S.T1,'#27ae60','normal');
+  if(S.act==='off')seg(186,26,S.T1,S.tEnd,'#1b2a38','mast off air');
+  else{seg(186,26,S.T1,Math.min(S.T3,S.tEnd),'#f0b030','edge interference','#1b2a38');if(S.T3<S.tEnd)seg(186,26,S.T3,Math.min(S.T8,S.tEnd),'#e67e22','drops');if(S.T8<S.tEnd)seg(186,26,S.T8,S.tEnd,'#c0392b','lost cells')}
+  seg(186,26,S.tEnd,CMAX,'#27ae60','normal')}
+ if(S.tdd&&S.over){gc.font='11px Arial';let lx=150;const leg=S.act==='off'?[['#1b2a38','off air: phones must use other masts']]:[['#f0b030','interference at cell edges'],['#e67e22','dropped calls, failed handovers'],['#c0392b','phones lose neighbouring masts']];leg.forEach(([c,t])=>{gc.fillStyle=c;gc.fillRect(lx,218,10,10);gc.fillStyle='#1b2a38';gc.fillText(t,lx+13,227);lx+=gc.measureText(t).width+26})}
+ // error chart (log-log)
+ const Y0=372,Y1=242,ya=Math.log10(1e-8),yb=Math.log10(1e-3);const Y=e=>Y0-(Y0-Y1)*(Math.log10(Math.max(1e-8,Math.min(1e-3,e)))-ya)/(yb-ya);
+ gc.fillStyle='#1b2a38';gc.font='bold 13px Arial';gc.fillText('Clock error',10,262);gc.font='11px Arial';gc.fillStyle='#456';gc.fillText('(stretched scale)',10,276);
+ [[1e-8,'0.01 µs'],[1e-7,'0.1 µs'],[1e-6,'1 µs'],[1e-5,'10 µs'],[1e-4,'100 µs'],[1e-3,'1 ms']].forEach(([e,l])=>{gc.fillStyle='#456';gc.textAlign='right';gc.fillText(l,146,Y(e)+4)});gc.textAlign='left';
+ if(S.tdd)[[LIM,'limit 1.5 µs','#c0392b',155,-2],[E3,'3.1 µs: service worse','#e67e22',245,-2],[E8,'7.8 µs: phones lose neighbours','#922b21',375,-2]].filter((z,i)=>i===0||S.act==='on').forEach(([e,l,c,lx,dy])=>{gc.strokeStyle=c;gc.setLineDash([5,4]);gc.lineWidth=1.2;gc.beginPath();gc.moveTo(150,Y(e));gc.lineTo(640,Y(e));gc.stroke();gc.setLineDash([]);gc.font='bold 11px Arial';const w=gc.measureText(l).width;gc.fillStyle='rgba(255,255,255,0.85)';gc.fillRect(lx-2,Y(e)+dy-10,w+4,12);gc.fillStyle=c;gc.fillText(l,lx,Y(e)+dy)});gc.font='11px Arial';
+ gc.strokeStyle='#1b2a38';gc.lineWidth=2;gc.beginPath();let first=true;
+ for(let i=0;i<=300;i++){const t=60*Math.pow(CMAX/60,i/300);if(t>S.tEnd)break;const e=TE(S.o,t);const x=XC(t),y=Y(e);if(first){gc.moveTo(x,y);first=false}else gc.lineTo(x,y)}
+ gc.stroke();
+ if(S.tEnd<CMAX){gc.fillStyle='#27ae60';gc.font='11px Arial';gc.fillText('re-locked: error back to ~0',Math.min(XC(S.tEnd)+4,500),Y0-4)}
+ // cursor
+ if(tc>0){const x=XC(Math.max(60,tc));gc.strokeStyle='#c0392b';gc.lineWidth=2;gc.beginPath();gc.moveTo(x,52);gc.lineTo(x,382);gc.stroke();gc.fillStyle='#c0392b';gc.font='bold 12px Arial';gc.textAlign='center';gc.fillText(ft(tc),Math.min(Math.max(x,170),620),418);gc.textAlign='left'}
+ gc.fillStyle='#456';gc.font='11.5px Arial';gc.fillText('Time since GNSS was lost →',150,432)}
+function uiC(){const S=scen();$('outL').textContent=ft(out);
+ $('actC').disabled=!S.tdd;
+ const st=stepsC(S);let cur=-1;st.forEach((s,i)=>{if(tc>0&&tc>=Math.max(s.t,0.001)||(tc>0&&s.t===0))cur=i});
+ let h='<b>Step by step</b> <span style="font-size:12.5px;color:#456">(numbers in brackets = Sources)</span>';
+ st.forEach((s,i)=>{h+=`<div class="stp${i===cur?' now':(i<cur?' done':'')}"><div class="t">${s.t<=0?'0 min':(s.t===60&&!S.tdd?'from the start':'after '+ft(s.t))} ${s.c.map(tg).join('')}</div><div class="h">${s.h}</div><div>${s.x}</div></div>`});
+ h+=`<div class="arg" style="margin:6px 0 0">${tg('ta')} <b>If a whole area loses GNSS at once</b> (space weather), every mast with its own receiver starts drifting together, each in its own direction. Two neighbours can then drift apart up to twice as fast as either drifts from true time. Masts fed from one shared network clock drift together instead [16].</div>`;
+ $('stepsC').innerHTML=h;
+ $('nowC').textContent=tc>0?ft(tc):'not started';
+ $('errC').innerHTML=tc<=0?'0':(tc>=S.tEnd?'about 0 (re-locked)':fe(TE(S.o,tc))+(S.tdd?(TE(S.o,tc)>LIM?' <span class="bad">(past limit)</span>':' <span class="ok">(within limit)</span>'):''));
+ drawC(S)}
+$('oscC').onchange=()=>{$('oscB').value=$('oscC').value;cdT=0;cdRun=false;$('go').innerHTML='&#9654; Count down (fast)';uiB();uiC()};
+$('mtC').onchange=$('actC').onchange=()=>uiC();
+$('outS').oninput=e=>{out=sl2t(+e.target.value);uiC()};
+document.querySelectorAll('#preC button').forEach(b=>b.onclick=()=>{out=+b.dataset.o;$('outS').value=t2sl(out);tc=0;uiC()});
+$('playC').onclick=()=>{const S=scen(),end=Math.min(CMAX,Math.max(S.tEnd*2,S.tEnd+3600));if(tc>=end||tc<=0)tc=60;cRun=!cRun;$('playC').innerHTML=cRun?'Pause':'&#9654; Play'};
+cc.onclick=e=>{const r=cc.getBoundingClientRect(),x=(e.clientX-r.left)*660/r.width;if(x<150)return;const a=Math.log10(60),b=Math.log10(CMAX);tc=Math.pow(10,a+(b-a)*(x-150)/490);cRun=false;$('playC').innerHTML='&#9654; Play';uiC()};
+// ---------- tabs + loop ----------
+function showTab(k){['A','B','C'].forEach(z=>{$('v'+z).classList.toggle('hide',z!==k);$('t'+z).className='b'+(z===k?' on':'')});if(k==='B')uiB();if(k==='C')uiC()}
+$('tA').onclick=()=>showTab('A');$('tB').onclick=()=>showTab('B');$('tC').onclick=()=>showTab('C');
+let lt=performance.now();
+function loop(n){const dt=Math.min(0.1,(n-lt)/1000);lt=n;
+ if(run){t=Math.min(TMAX,t*Math.pow(TMAX/TMIN,dt/14));$('ts').value=t2sl(t);if(t>=TMAX)run=false;uiA()}
+ if(cdRun){const hT=hold(OSC[$('oscB').value],SYS[+$('sysB').value].L),end=Math.min(hT,365*DAY);cdT=Math.max(cdT,60)*Math.pow(1e4,dt/10);if(cdT>=end){cdT=hT;cdRun=false;$('go').innerHTML='&#9654; Count down again'}uiB()}
+ if(cRun){const S=scen(),end=Math.min(CMAX,Math.max(S.tEnd*2,S.tEnd+3600));tc=Math.max(tc,60)*Math.pow(end/60,dt/14);if(tc>=end){tc=end;cRun=false;$('playC').innerHTML='&#9654; Play again'}uiC()}
+ requestAnimationFrame(loop)}
+uiA();uiB();uiC();requestAnimationFrame(loop);
+// preview states for screenshots: #drift6h or #holdover
+if(location.hash==='#drift6h'){t=6*3600;$('ts').value=t2sl(t);uiA()}
+if(location.hash==='#holdover'){$('tB').onclick();cdT=2*3600;uiB()}
+if(location.hash==='#mast'){showTab('C');$('oscC').value='ocxo';$('oscC').onchange();$('mtC').value='tdd';$('actC').value='on';out=DAY;$('outS').value=t2sl(out);tc=9*3600;uiC()}
+if(location.hash==='#mastoff'){showTab('C');$('oscC').value='ocxo';$('oscC').onchange();$('mtC').value='tdd';$('actC').value='off';out=3*DAY;$('outS').value=t2sl(out);tc=1.5*DAY;uiC()}
+</script><script>
+window.KNOB=function(dir,big){
+ var vis=function(z){return !$('v'+z).classList.contains('hide')};
+ if(vis('A')){run=false;var s=$('ts');var v=(t<TMIN&&dir>0)?0:+s.value;v=Math.max(0,Math.min(1000,v+dir*(big?80:20)));s.value=v;t=sl2t(v);if(v===0&&dir<0)t=0;uiA();}
+ else if(vis('B')){cdRun=false;var hT=hold(OSC[$('oscB').value],SYS[+$('sysB').value].L),end=Math.min(hT,365*DAY);var f=big?2.5:1.3;
+   if(dir>0){cdT=Math.min(end,Math.max(cdT,60)*f);if(cdT<=60)cdT=60}else{cdT=cdT*Math.pow(1/f,1);if(cdT<60)cdT=0}
+   $('go').innerHTML='&#9654; Count down (fast)';uiB();}
+ else{cRun=false;var S2=scen(),endC=Math.min(CMAX,Math.max(S2.tEnd*2,S2.tEnd+3600));
+   if(big){var sl=$('outS');var v2=Math.max(0,Math.min(1000,+sl.value+dir*25));sl.value=v2;out=sl2t(v2);tc=0;uiC();}
+   else{if(dir>0)tc=Math.min(endC,Math.max(tc,60)*1.3);else{tc=tc/1.3;if(tc<60)tc=0}uiC();}}
+};
+</script>
+<script>
+/* Knob / keyboard control. A USB rotary knob normally sends arrow keys (or + / -). F = full screen. */
+(function(){
+ function fs(){var d=document;
+  if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}
+  else{var e=d.documentElement;var f=e.requestFullscreen||e.webkitRequestFullscreen;if(f)f.call(e)}}
+ window.addEventListener('keydown',function(ev){
+  if(ev.metaKey||ev.ctrlKey||ev.altKey)return;
+  var tg=ev.target,tn=tg&&tg.tagName;
+  if(tn==='SELECT'||tn==='TEXTAREA'||(tn==='INPUT'&&tg.type!=='range'&&tg.type!=='checkbox'))return;
+  var k=ev.key;
+  if(k==='f'||k==='F'){ev.preventDefault();fs();return}
+  var dir=0,big=false;
+  if(k==='ArrowRight'||k==='+'||k==='='||k==='AudioVolumeUp')dir=1;
+  else if(k==='ArrowLeft'||k==='-'||k==='_'||k==='AudioVolumeDown')dir=-1;
+  else if(k==='ArrowUp'){dir=1;big=true}
+  else if(k==='ArrowDown'){dir=-1;big=true}
+  if(!dir||typeof window.KNOB!=='function')return;
+  ev.preventDefault();window.KNOB(dir,big);
+ },true);
+})();
+</script>
+</body></html>

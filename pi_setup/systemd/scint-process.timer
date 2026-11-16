@@ -1,0 +1,9 @@
+[Unit]
+Description=Run scint-process hourly at HH:08
+
+[Timer]
+OnCalendar=*-*-* *:08:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,11 @@
+# Example crontab used on the measurement Pi. Replace YOUR_USER.
+# Times are in the Pi's local timezone (Europe/London).
+
+# Daily Rate of TEC Index (ROTI) from the previous day's home-receiver data
+30 5 * * * cd /home/YOUR_USER/gnss-logger && /usr/bin/python3 compute_roti.py --csv roti_network.csv >> /home/YOUR_USER/gnss-logger/roti_cron.log 2>&1
+
+# Daily EMBRACE scintillation download
+15 6 * * * /usr/bin/python3 /home/YOUR_USER/scint-logger/embrace_logger.py >> /home/YOUR_USER/scint-logger/embrace.log 2>&1
+
+# Global IGS-station ROTI pipeline for yesterday and two days ago
+45 7 * * * cd /home/YOUR_USER/global_logger && ./venv/bin/python -m global_logger daily >> logs/daily_cron.log 2>&1 && ./venv/bin/python -m global_logger daily --date $(date -u -d "2 days ago" +\%Y-\%m-\%d) >> logs/daily_cron.log 2>&1

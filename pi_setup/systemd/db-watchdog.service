@@ -1,0 +1,6 @@
+[Unit]
+Description=DB watchdog
+[Service]
+Type=oneshot
+User=YOUR_USER
+ExecStart=/home/YOUR_USER/db_watchdog.sh

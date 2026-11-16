@@ -1,0 +1,9 @@
+[Unit]
+Description=NOAA G3+ geomagnetic storm alert email
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=YOUR_USER
+ExecStart=/usr/bin/python3 /home/YOUR_USER/storm_alert/storm_alert.py
+TimeoutStartSec=300

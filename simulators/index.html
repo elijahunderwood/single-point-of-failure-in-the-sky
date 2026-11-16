@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A Single Point of Failure in the Sky - interactive demos</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0f1d2b;color:#eef2f6;display:flex;flex-direction:column;min-height:100vh}
+header{padding:3vh 5vw 1vh;text-align:center}
+h1{margin:0;font-size:clamp(26px,3.6vw,48px);line-height:1.15}
+.sub{margin:1vh 0 0;color:#aab7c4;font-size:clamp(15px,1.7vw,22px)}
+main{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:2vh 2vw;padding:2vh 5vw;align-content:center;max-width:1500px;width:100%;margin:0 auto}
+a.demo{display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:14vh;padding:18px 24px;border-radius:14px;background:#1c3550;border:3px solid #3d6a99;color:#fff;text-decoration:none;transition:transform .08s,background .08s,border-color .08s}
+a.demo:hover,a.demo:focus{background:#25476c;border-color:#7fb3e6;outline:none;transform:scale(1.015)}
+a.demo .n{font-size:clamp(20px,2.4vw,32px);font-weight:bold}
+a.demo .n span{display:inline-block;min-width:1.5em;height:1.5em;line-height:1.5em;text-align:center;border-radius:50%;background:#7fb3e6;color:#0f1d2b;margin-right:12px;font-size:.85em}
+a.demo .d{font-size:clamp(15px,1.5vw,20px);color:#d3deea;line-height:1.35}
+footer{padding:1vh 5vw 2vh;text-align:center;color:#8fa0b2;font-size:clamp(12px,1.1vw,15px)}
+</style></head><body>
+<header>
+<h1>A Single Point of Failure in the Sky - interactive demos</h1>
+<p class="sub">Space weather as a common-mode threat to satellite navigation and satellite broadband. Choose a demo.</p>
+</header>
+<main id="menu">
+<a class="demo" href="1_Cascade_Chain.html"><div class="n"><span>1</span>Cascade chain</div><div class="d">Press a button and watch one flare or storm spread from the Sun to navigation, phone masts, farms, the power grid and more.</div></a>
+<a class="demo" href="2_Warning_Clock.html"><div class="n"><span>2</span>Warning clock</div><div class="d">How much warning do you get? A solar flare gives none; a storm gives hours to days. Replay real events.</div></a>
+<a class="demo" href="3_Sky_View.html"><div class="n"><span>3</span>Sky view</div><div class="d">See which satellite navigation satellites a real storm disturbs as they cross the sky above a receiver.</div></a>
+<a class="demo" href="4_Drone_Fleet.html"><div class="n"><span>4</span>Drone fleet</div><div class="d">Real measured position error on a fleet of drones: one shared cause takes them all off course at once.</div></a>
+<a class="demo" href="5_Timing_Holdover.html"><div class="n"><span>5</span>Timing holdover</div><div class="d">How long can phone masts, substations and trading clocks keep time if satellite timing is lost? (Argued, not measured.)</div></a>
+</main>
+<footer>Works offline. Press 1 to 5 to open a demo, or use the arrow keys and Enter. F = full screen. Inside a demo, arrow keys or a USB knob adjust the main control.</footer>
+<script>
+(function(){
+ var links=[].slice.call(document.querySelectorAll('a.demo'));
+ function fs(){var d=document;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}else{var e=d.documentElement,f=e.requestFullscreen||e.webkitRequestFullscreen;if(f)f.call(e)}}
+ window.addEventListener('keydown',function(ev){
+  if(ev.metaKey||ev.ctrlKey||ev.altKey)return;
+  var k=ev.key;
+  if(k==='f'||k==='F'){ev.preventDefault();fs();return}
+  if(k>='1'&&k<='5'){location.href=links[+k-1].getAttribute('href');return}
+  var i=links.indexOf(document.activeElement);
+  if(k==='ArrowDown'||k==='ArrowRight'){ev.preventDefault();links[(i+1)%links.length].focus()}
+  else if(k==='ArrowUp'||k==='ArrowLeft'){ev.preventDefault();links[(i<=0?links.length:i)-1].focus()}
+ });
+ links[0].focus();
+})();
+</script>
+</body></html>

@@ -1,0 +1,16 @@
+# Core analysis and the global Rate of TEC Index (ROTI) pipeline
+numpy>=1.22
+pandas>=1.5
+matplotlib>=3.5
+scipy>=1.9
+PyYAML>=6.0
+hatanaka>=2.4
+
+# Optional, used by some analysis scripts or loggers
+netCDF4>=1.6
+pyubx2>=1.2
+pyserial>=3.5
+
+# The LEO broadband dish logger also needs starlink_grpc from
+# https://github.com/sparky8512/starlink-grpc-tools
+# plus grpcio, protobuf and yagrc (installed into that environment on the Pi).

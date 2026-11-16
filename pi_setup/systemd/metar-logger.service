@@ -1,0 +1,26 @@
+[Unit]
+Description=METAR logger (aviationweather.gov -> SQLite)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# --- EDIT paths / user to match your Pi ---
+# Standard library only. Uses the venv python for consistency.
+# --icao defaults to EGAA (Belfast International); change if needed.
+WorkingDirectory=/home/YOUR_USER/weather-logger
+ExecStart=/home/YOUR_USER/starlink-venv/bin/python3 /home/YOUR_USER/weather-logger/metar_logger.py \
+    --icao EGAA \
+    --db /home/YOUR_USER/weather-logger/metar.db \
+    --interval 900
+User=YOUR_USER
+
+Restart=always
+RestartSec=30
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,7 @@
+[Unit]
+Description=Run flare-logger global analysis daily at 09:30 UTC (after Geoscience Australia daily files appear)
+[Timer]
+OnCalendar=*-*-* 09:30:00 UTC
+Persistent=true
+[Install]
+WantedBy=timers.target

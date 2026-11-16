@@ -1,0 +1,11 @@
+[Unit]
+Description=flare-logger global: dayside global GNSS stations TEC response for new M/X flares
+Wants=network-online.target
+After=network-online.target
+[Service]
+Type=oneshot
+User=YOUR_USER
+WorkingDirectory=/home/YOUR_USER/flare_logger
+ExecStart=/home/YOUR_USER/flare_logger/venv/bin/python flare_logger.py global --min-class M1
+TimeoutStartSec=3h
+Nice=15

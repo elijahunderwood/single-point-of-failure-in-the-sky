@@ -1,0 +1,25 @@
+[Unit]
+Description=Space weather logger (NOAA SWPC -> SQLite)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# --- EDIT paths / user to match your Pi ---
+# This logger uses only the Python standard library, so no PYTHONPATH is needed.
+# Using the venv python keeps it consistent with the Starlink service.
+WorkingDirectory=/home/YOUR_USER/spaceweather-logger
+ExecStart=/home/YOUR_USER/starlink-venv/bin/python3 /home/YOUR_USER/spaceweather-logger/spaceweather_logger.py \
+    --db /home/YOUR_USER/spaceweather-logger/spaceweather.db \
+    --interval 900
+User=YOUR_USER
+
+Restart=always
+RestartSec=30
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

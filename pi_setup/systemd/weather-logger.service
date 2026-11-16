@@ -1,0 +1,27 @@
+[Unit]
+Description=Local weather logger (Open-Meteo -> SQLite)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# --- EDIT paths / user / COORDINATES to match your Pi and dish ---
+# Standard library only, so no PYTHONPATH. Uses the venv python for consistency.
+# Published example uses the rounded Belfast location (~54.6N 5.9W).
+# Replace --lat/--lon with your own site coordinates before use; exact home coordinates are not published.
+WorkingDirectory=/home/YOUR_USER/weather-logger
+ExecStart=/home/YOUR_USER/starlink-venv/bin/python3 /home/YOUR_USER/weather-logger/weather_logger.py \
+    --lat 54.6 --lon -5.9 \
+    --db /home/YOUR_USER/weather-logger/localweather.db \
+    --interval 900
+User=YOUR_USER
+
+Restart=always
+RestartSec=30
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

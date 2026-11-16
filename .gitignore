@@ -1,0 +1,46 @@
+# Secrets and private config (never commit these)
+.env
+.env.*
+!.env.example
+config.local
+**/pin
+**/.msmtprc
+msmtprc
+rclone.conf
+**/.rclone.conf
+*.pem
+*.key
+id_rsa
+id_ed25519
+authorized_keys
+
+# Databases, logs and bulky raw data
+*.db
+*.db-wal
+*.db-shm
+*-wal
+*-shm
+*.sql
+*.sql.gz
+*.log
+*.obs
+*.nav
+*.rnx
+*.ubx
+*.gz
+*.xz
+*.zip
+*.tgz
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

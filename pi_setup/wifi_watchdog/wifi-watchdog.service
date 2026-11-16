@@ -1,0 +1,7 @@
+[Unit]
+Description=Wi-Fi watchdog (re-connect Starlink888 if the network is lost)
+After=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wifi-watchdog.sh

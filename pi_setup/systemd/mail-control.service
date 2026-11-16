@@ -1,0 +1,9 @@
+[Unit]
+Description=Email remote control for the Pi (checks Gmail for PI commands)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=YOUR_USER
+ExecStart=/usr/bin/python3 /home/YOUR_USER/mail_control/mail_control.py
+TimeoutStartSec=600

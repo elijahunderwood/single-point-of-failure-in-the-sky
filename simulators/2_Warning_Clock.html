@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en-GB"><head><meta charset="utf-8"><title>How much warning do you get? Flare versus storm</title>
+<style>*{box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#eef2f6;color:#1b2a38}
+h1{font-size:24px;margin:10px 16px 2px}.sub{margin:0 16px 8px;color:#456;font-size:15px}
+#wrap{display:flex;gap:14px;padding:0 16px 8px;align-items:flex-start}
+.card{background:#fff;border:1px solid #bcc;border-radius:6px;padding:10px 12px;margin-bottom:10px;font-size:15px}
+label{font-weight:bold;display:block;margin-top:8px;font-size:15px}select,input[type=range]{width:100%;font-size:15px}
+select{padding:4px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.btns button,button.b{padding:8px 12px;border:2px solid #34495e;background:#fff;border-radius:6px;cursor:pointer;font-size:15px;font-weight:bold;color:#34495e}
+.btns button.on,button.b.on{background:#34495e;color:#fff}
+.big{font-size:28px;font-weight:bold}.row{display:flex;justify-content:space-between;margin:3px 0;gap:8px}
+.ok{color:#1e8449}.bad{color:#c0392b}
+.foot{margin:0 16px 10px;font-size:12.5px;color:#34495e;background:#fff;border:1px solid #bcc;border-radius:6px;padding:7px 10px;line-height:1.4}
+.tag{display:inline-block;padding:1px 6px;border-radius:4px;color:#fff;font-weight:bold;font-size:11.5px;margin-right:4px}
+.tm{background:#1e8449}.tp{background:#2471a3}.ti{background:#d68910}
+canvas{border:2px solid #34495e;border-radius:6px;background:#fff;display:block}
+
+.card{padding:7px 10px;margin-bottom:7px}label{margin-top:4px}h1{font-size:22px}
+#clk{font-size:34px;font-weight:bold;font-variant-numeric:tabular-nums}
+.bar{height:20px;background:#e5e8ec;border-radius:4px;overflow:hidden;margin:3px 0 2px}.bar>div{height:100%}
+.wl{font-size:14px}
+</style><style>#topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:6px 16px 0;font:13px Arial,Helvetica,sans-serif}#topbar a{color:#2471a3;text-decoration:none;font-weight:bold;padding:2px 6px;border:1px solid #bcc;border-radius:5px;background:#fff}#topbar a:hover{background:#eaf2f8}#hint{color:#6b7c8c;font-size:12px}</style></head><body><div id="topbar"><a href="index.html">&larr; Back to menu</a><span id="hint">Arrow keys / knob to adjust, F for full screen</span></div>
+<h1>How much warning do you get? A solar flare against a geomagnetic storm</h1>
+<p class="sub">Both start with the same eruption on the Sun. Pick a real event and press Start. Distances and sizes are <b>not to scale</b>.</p>
+<div id="wrap">
+<canvas id="c" width="640" height="420"></canvas>
+<div style="width:440px">
+<div class="card">
+<label>Real event</label><select id="ev"></select>
+<div class="btns" style="margin-top:6px"><button id="go" class="b on">Start</button><button id="sp1" class="b">Slow</button><button id="sp2" class="b on">Auto speed</button></div>
+<div class="row" style="margin-top:6px;align-items:center"><span>Time since the eruption</span><span id="clk">0 min</span></div>
+</div>
+<div class="card">
+<b>Warning you get: solar flare</b>
+<div class="bar"><div style="width:0"></div></div>
+<div class="wl"><b class="bad">None.</b> The light arrives in about 8 minutes, and nothing travels faster, so the first sign of the flare <i>is</i> its effect.</div>
+</div>
+<div class="card">
+<b>Warning you get: geomagnetic storm</b>
+<div class="wl" style="margin-top:3px">1. Something is coming (the cloud is seen leaving the Sun):</div>
+<div class="bar"><div id="b1" style="width:0;background:#27ae60"></div></div>
+<div class="wl" id="w1"></div>
+<div class="wl" style="margin-top:4px">2. How strong it really is (measured by a spacecraft at L1, a point between the Sun and Earth, much closer to Earth):</div>
+<div class="bar"><div id="b2" style="width:0;background:#d68910"></div></div>
+<div class="wl">About <b>15&ndash;30 minutes</b> before it hits.</div>
+<div class="wl" id="note" style="margin-top:4px;color:#34495e"></div>
+</div>
+</div></div>
+<div class="foot"><span class="tag tm">MEASURED / PUBLISHED</span>Event times are from published reports: NOAA Service Assessment (2004) for 2003; ESA monitoring pages for Nov 2025 and Jan 2026; the NASA CCMC CME Scoreboard for Mar 2015; Kataoka et al. (2022) and Fang et al. (2022) for 2022; Knipp et al. (2018) for 1972. Flare light takes about 8.3 minutes (UK Department for Transport: 8.5); a CME (coronal mass ejection) usually takes about 1&ndash;3 days (DfT 2025); spacecraft at L1 give about 15&ndash;30 minutes' final warning (Royal Academy of Engineering 2013). In my own data, 48% of G3+ storms (1996&ndash;2026) came within 3 days of an M5+ flare, against about 20% by chance.
+<span class="tag ti">ILLUSTRATIVE</span>The drawing: the cloud is shown moving at a steady speed and reaching L1 about 20 minutes before Earth; real clouds speed up or slow down. Times are UTC.</div>
+<script>
+const EV=[
+ {id:'2003',name:'Halloween storm, Oct 2003',erupt:'X17 flare at 11:10 UTC on 28 Oct 2003',arrive:'Cloud arrived 06:13 UTC on 29 Oct',T:19*60+3,storm:'G5, the top of the scale, lasting 27 hours',note:'A second big flare (X10) then hit <b>during</b> the storm, on 29 Oct.'},
+ {id:'1972',name:'August 1972 (fastest known)',erupt:'A series of major flares, early Aug 1972',arrive:'Cloud arrived after 14.6 hours',T:Math.round(14.6*60),storm:'A storm with very fast magnetic changes',note:'One of the fastest arrivals on record: barely half a day of warning.'},
+ {id:'2026',name:'January 2026',erupt:'X-class flare at 18:09 UTC on 18 Jan 2026',arrive:'Cloud arrived after about 25 hours',T:25*60,storm:'Reached the top of the warning scales (ESA)',note:'ESA said satellite operators could use the warning to take protective action.'},
+ {id:'2025',name:'November 2025',erupt:'X5.1 flare at 10:04 UTC on 11 Nov 2025',arrive:'Cloud arrived 18:50 UTC on 12 Nov',T:32*60+46,storm:'G4, severe',note:'ESA expected the impact to be limited.'},
+ {id:'2015',name:'St Patrick\u2019s Day, Mar 2015',erupt:'Cloud seen leaving the Sun at 01:36 UTC on 15 Mar 2015 (after a small C9.1 flare)',arrive:'Arrived 04:05 UTC on 17 Mar',T:50*60+29,storm:'G4 (Kp 7.67)',note:'<b>The forecast said G1 (minor). It turned out G4 (severe).</b> Knowing something is coming is not the same as knowing how strong.'},
+ {id:'2022',name:'February 2022',erupt:'M1.1 flare at 23:32 UTC on 29 Jan 2022',arrive:'Arrived 21:37 UTC on 1 Feb',T:70*60+5,storm:'Only G1 (Kp 5), minor',note:'Even this minor storm caused 38 of 49 newly launched LEO satellite broadband satellites to fall back to Earth (with their low orbit).'}];
+const $=id=>document.getElementById(id);
+EV.forEach((e,i)=>{const o=document.createElement('option');o.value=i;o.textContent=e.name;$('ev').appendChild(o)});
+let ev=EV[0],t=0,run=false,auto=true;const FL=8.3,L1W=22.5;
+function fmt(m){if(m<60)return Math.floor(m)+' min';const h=Math.floor(m/60),mm=Math.floor(m%60);return h+' h '+String(mm).padStart(2,'0')+' min'}
+const cv=$('c'),g=cv.getContext('2d'),W=cv.width;
+const SX=70,EX=570;
+function sun(y){const gr=g.createRadialGradient(SX,y,5,SX,y,52);gr.addColorStop(0,'#fff3b0');gr.addColorStop(0.6,'#f5b041');gr.addColorStop(1,'rgba(245,176,65,0)');g.fillStyle=gr;g.beginPath();g.arc(SX,y,52,0,2*Math.PI);g.fill();g.fillStyle='#d6e4f0';g.font='bold 14px Arial';g.textAlign='center';g.fillText('Sun',SX,y+62)}
+function earth(y,hit,col){g.beginPath();g.arc(EX,y,24,0,2*Math.PI);g.fillStyle='#1f3a5a';g.fill();g.beginPath();g.arc(EX,y,24,Math.PI/2,1.5*Math.PI);g.fillStyle='#5dade2';g.fill();if(hit){g.lineWidth=5;g.strokeStyle=col;g.beginPath();g.arc(EX,y,30,0,2*Math.PI);g.stroke()}g.lineWidth=2;g.strokeStyle='#34495e';g.beginPath();g.arc(EX,y,24,0,2*Math.PI);g.stroke();g.fillStyle='#d6e4f0';g.font='bold 14px Arial';g.textAlign='center';g.fillText('Earth',EX,y+44)}
+function draw(){g.fillStyle='#0f1d2b';g.fillRect(0,0,W,cv.height);
+ g.fillStyle='#fff';g.font='bold 16px Arial';g.textAlign='left';
+ g.fillText('Solar flare: light, X-rays and radio',14,24);
+ g.fillText('Geomagnetic storm: a cloud of solar plasma (CME)',14,224);
+ g.fillStyle='#34495e';g.fillRect(0,198,W,2);
+ const y1=110,y2=305;sun(y1);sun(y2);
+ // flare beam
+ const f=Math.min(1,t/FL),fx=SX+50+(EX-30-SX-50)*f;
+ if(t>0){g.strokeStyle='rgba(255,236,140,0.9)';g.lineWidth=6;g.beginPath();g.moveTo(SX+50,y1);g.lineTo(fx,y1);g.stroke()}
+ earth(y1,t>=FL,'#e74c3c');
+ g.fillStyle='#d6e4f0';g.font='13px Arial';g.textAlign='center';
+ g.fillText(t>=FL?'Hit after 8.3 min: only the sunlit (day) side':'Travels at the speed of light',(SX+EX)/2,y1-22);
+ if(t>=FL){g.fillStyle='#f1948a';g.font='bold 13px Arial';g.fillText('Day side',EX-58,y1-30)}
+ // CME
+ const T=ev.T,L1x=EX-60;let cx;
+ if(t<=T-L1W)cx=SX+55+(L1x-SX-55)*Math.max(0,t)/(T-L1W);else cx=L1x+(EX-30-L1x)*Math.min(1,(t-(T-L1W))/L1W);
+ g.strokeStyle='#d6e4f0';g.setLineDash([4,4]);g.lineWidth=1;g.beginPath();g.moveTo(L1x,y2-60);g.lineTo(L1x,y2+40);g.stroke();g.setLineDash([]);
+ g.fillStyle='#f5b041';g.fillRect(L1x-5,y2-66,10,8);g.fillStyle='#d6e4f0';g.font='12px Arial';g.fillText('L1 spacecraft',L1x,y2-72);
+ if(t>0){const r=10+30*Math.min(1,t/T);const gr=g.createRadialGradient(cx,y2,2,cx,y2,r+10);gr.addColorStop(0,'rgba(240,130,60,0.95)');gr.addColorStop(1,'rgba(240,130,60,0)');g.fillStyle=gr;g.beginPath();g.arc(cx,y2,r+10,0,2*Math.PI);g.fill()}
+ earth(y2,t>=T,'#e74c3c');
+ g.fillStyle='#d6e4f0';g.font='13px Arial';g.textAlign='center';
+ const msg=t>=T?'Hit after '+fmt(T)+'. Strongest near the poles.':(t>=T-L1W?'Passing L1: strength measured now':(t>0?'Seen leaving the Sun: warning issued':'Waiting for the eruption'));
+ g.fillText(msg,(SX+EX)/2,y2+58);
+ g.fillStyle='#aab7c4';g.font='12px Arial';g.fillText(ev.erupt,(SX+EX)/2,y2+80);g.fillText(ev.arrive+' \u2022 '+ev.storm,(SX+EX)/2,y2+97);
+ g.textAlign='left';
+}
+function ui(){$('clk').textContent=fmt(Math.min(t,ev.T));const T=ev.T;
+ $('b1').style.width=(t>0?100*Math.min(1,t/T):0)+'%';$('w1').innerHTML='About <b>'+fmt(T)+'</b> in this event (from eruption to arrival).';
+ $('b2').style.width=(t>=T-L1W?100*Math.min(1,(t-(T-L1W))/L1W):0)+'%';$('note').innerHTML=ev.note;}
+$('ev').onchange=()=>{ev=EV[+$('ev').value];t=0;run=false;$('go').textContent='Start';ui();draw()};
+$('go').onclick=()=>{if(t>=ev.T)t=0;run=!run;$('go').textContent=run?'Pause':'Start'};
+$('sp1').onclick=()=>{auto=false;$('sp1').className='b on';$('sp2').className='b'};$('sp2').onclick=()=>{auto=true;$('sp2').className='b on';$('sp1').className='b'};
+let lt=performance.now();function loop(n){const dt=Math.min(0.1,(n-lt)/1000);lt=n;if(run){const rate=auto?Math.max(3,Math.min(t,ev.T-t)*0.3):1.5;t+=rate*dt;if(t>=ev.T){t=ev.T;run=false;$('go').textContent='Restart'}ui();draw()}requestAnimationFrame(loop)}
+// preview state: show the end of the default event so the screenshot is informative
+ui();draw();requestAnimationFrame(loop);
+if(location.hash==='#end'){t=ev.T;ui();draw()}
+</script><script>
+window.KNOB=function(dir,big){run=false;t=Math.max(0,Math.min(ev.T,t+dir*ev.T/(big?10:60)));$('go').textContent=(t>=ev.T?'Restart':'Start');ui();draw();};
+</script>
+<script>
+/* Knob / keyboard control. A USB rotary knob normally sends arrow keys (or + / -). F = full screen. */
+(function(){
+ function fs(){var d=document;
+  if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}
+  else{var e=d.documentElement;var f=e.requestFullscreen||e.webkitRequestFullscreen;if(f)f.call(e)}}
+ window.addEventListener('keydown',function(ev){
+  if(ev.metaKey||ev.ctrlKey||ev.altKey)return;
+  var tg=ev.target,tn=tg&&tg.tagName;
+  if(tn==='SELECT'||tn==='TEXTAREA'||(tn==='INPUT'&&tg.type!=='range'&&tg.type!=='checkbox'))return;
+  var k=ev.key;
+  if(k==='f'||k==='F'){ev.preventDefault();fs();return}
+  var dir=0,big=false;
+  if(k==='ArrowRight'||k==='+'||k==='='||k==='AudioVolumeUp')dir=1;
+  else if(k==='ArrowLeft'||k==='-'||k==='_'||k==='AudioVolumeDown')dir=-1;
+  else if(k==='ArrowUp'){dir=1;big=true}
+  else if(k==='ArrowDown'){dir=-1;big=true}
+  if(!dir||typeof window.KNOB!=='function')return;
+  ev.preventDefault();window.KNOB(dir,big);
+ },true);
+})();
+</script>
+</body></html>

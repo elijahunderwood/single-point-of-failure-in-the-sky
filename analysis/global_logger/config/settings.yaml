@@ -1,0 +1,18 @@
+# Paths are relative to the global_logger folder unless absolute.
+paths:
+  db: data/global_roti.db        # the SQLite database
+  raw: data/raw                  # downloaded RINEX / orbit files
+  logs: logs
+  figures: figures
+  keep_raw: false                # delete each RINEX file after processing (saves SD-card space on a Pi)
+
+# Identical to the home-station reanalysis pipeline - change only if you change it everywhere.
+processing:
+  elev_mask_deg: 20              # ignore satellites below 20 deg (multipath)
+  rot_base_s: 30                 # ROT from samples 30 s apart
+  roti_window_s: 300             # ROTI = std of ROT over 5 minutes
+  arc_gap_s: 45                  # gap that starts a new arc (30-s data: > 1 missed epoch)
+  slip_jump_tecu: 5.0            # phase-TEC jump between epochs treated as a cycle slip
+  rot_reject_tecu_min: 10.0      # |ROT| above this is discarded as a residual slip
+  disturbed_threshold: 0.5       # ROTI (TECU/min) counted as 'disturbed'
+  min_sats_network: 3            # need >= 3 satellites for a network value

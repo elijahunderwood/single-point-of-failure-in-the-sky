@@ -1,0 +1,11 @@
+[Unit]
+Description=gnss-raw-retention: delete 20 Hz raw GNSS days older than 7 days, keep storm/flare/control days
+
+[Service]
+Type=oneshot
+User=YOUR_USER
+Nice=10
+IOSchedulingClass=idle
+ExecStart=/usr/bin/python3 /home/YOUR_USER/gnss-scint/raw_retention.py
+StandardOutput=append:/home/YOUR_USER/gnss-scint/retention.log
+StandardError=append:/home/YOUR_USER/gnss-scint/retention.log

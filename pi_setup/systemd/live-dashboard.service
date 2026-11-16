@@ -1,0 +1,10 @@
+[Unit]
+Description=Regenerate the live dashboard page (reads logger databases read-only)
+
+[Service]
+Type=oneshot
+User=YOUR_USER
+ExecStart=/usr/bin/flock -n /tmp/live-dashboard.lock /usr/bin/python3 /home/YOUR_USER/live-dashboard/generate.py
+Nice=19
+IOSchedulingClass=idle
+TimeoutStartSec=120

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the database backup nightly
+
+[Timer]
+# 03:30 local time daily; catches up after downtime
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

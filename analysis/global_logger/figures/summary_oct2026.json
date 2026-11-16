@@ -1,0 +1,206 @@
+{
+ "THU2": {
+  "geomag_lat": 85.7,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.342,
+   "2026-10-05": 0.284
+  },
+  "peak_1h_median_roti": 1.235,
+  "peak_time": "2026-10-04 13:05:00+00:00",
+  "median_roti": 0.333,
+  "quiet_frac_gt05": 0.137,
+  "quiet_median_roti": 0.197
+ },
+ "NYA1": {
+  "geomag_lat": 76.3,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.402,
+   "2026-10-05": 0.351
+  },
+  "peak_1h_median_roti": 0.869,
+  "peak_time": "2026-10-05 11:55:00+00:00",
+  "median_roti": 0.37,
+  "quiet_frac_gt05": 0.121,
+  "quiet_median_roti": 0.19
+ },
+ "REYK": {
+  "geomag_lat": 68.8,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.159,
+   "2026-10-05": 0.191
+  },
+  "peak_1h_median_roti": 0.9,
+  "peak_time": "2026-10-05 04:00:00+00:00",
+  "median_roti": 0.159,
+  "quiet_frac_gt05": 0.008,
+  "quiet_median_roti": 0.046
+ },
+ "YELL": {
+  "geomag_lat": 68.5,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.3,
+   "2026-10-05": 0.255
+  },
+  "peak_1h_median_roti": 1.866,
+  "peak_time": "2026-10-05 03:35:00+00:00",
+  "median_roti": 0.28,
+  "quiet_frac_gt05": 0.009,
+  "quiet_median_roti": 0.045
+ },
+ "TRO1": {
+  "geomag_lat": 67.5,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.381,
+   "2026-10-05": 0.264
+  },
+  "peak_1h_median_roti": 1.604,
+  "peak_time": "2026-10-04 18:30:00+00:00",
+  "median_roti": 0.298,
+  "quiet_frac_gt05": 0.058,
+  "quiet_median_roti": 0.048
+ },
+ "KIRU": {
+  "geomag_lat": 65.6,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.337,
+   "2026-10-05": 0.192
+  },
+  "peak_1h_median_roti": 1.198,
+  "peak_time": "2026-10-04 15:25:00+00:00",
+  "median_roti": 0.212,
+  "quiet_frac_gt05": 0.015,
+  "quiet_median_roti": 0.047
+ },
+ "MORP": {
+  "geomag_lat": 57.2,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.0,
+   "2026-10-05": 0.001
+  },
+  "peak_1h_median_roti": 0.074,
+  "peak_time": "2026-10-05 21:40:00+00:00",
+  "median_roti": 0.024,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.021
+ },
+ "HERS": {
+  "geomag_lat": 52.7,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.008,
+   "2026-10-05": 0.0
+  },
+  "peak_1h_median_roti": 0.036,
+  "peak_time": "2026-10-04 14:50:00+00:00",
+  "median_roti": 0.02,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.018
+ },
+ "BRUX": {
+  "geomag_lat": 52.0,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.0,
+   "2026-10-05": 0.0
+  },
+  "peak_1h_median_roti": 0.031,
+  "peak_time": "2026-10-04 13:45:00+00:00",
+  "median_roti": 0.017,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.015
+ },
+ "PIE1": {
+  "geomag_lat": 41.6,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.0,
+   "2026-10-05": 0.0
+  },
+  "peak_1h_median_roti": 0.076,
+  "peak_time": "2026-10-05 05:10:00+00:00",
+  "median_roti": 0.033,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.022
+ },
+ "MAS1": {
+  "geomag_lat": 32.5,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.007,
+   "2026-10-05": 0.002
+  },
+  "peak_1h_median_roti": 0.125,
+  "peak_time": "2026-10-04 00:15:00+00:00",
+  "median_roti": 0.03,
+  "quiet_frac_gt05": 0.01,
+  "quiet_median_roti": 0.03
+ },
+ "KOUR": {
+  "geomag_lat": 13.9,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.018,
+   "2026-10-05": 0.002
+  },
+  "peak_1h_median_roti": 0.177,
+  "peak_time": "2026-10-04 00:05:00+00:00",
+  "median_roti": 0.034,
+  "quiet_frac_gt05": 0.027,
+  "quiet_median_roti": 0.034
+ },
+ "BOGT": {
+  "geomag_lat": 13.8,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.003,
+   "2026-10-05": 0.001
+  },
+  "peak_1h_median_roti": 0.08,
+  "peak_time": "2026-10-05 02:10:00+00:00",
+  "median_roti": 0.056,
+  "quiet_frac_gt05": 0.014,
+  "quiet_median_roti": 0.052
+ },
+ "NKLG": {
+  "geomag_lat": 1.6,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.0,
+   "2026-10-05": 0.03
+  },
+  "peak_1h_median_roti": 0.143,
+  "peak_time": "2026-10-04 00:50:00+00:00",
+  "median_roti": 0.025,
+  "quiet_frac_gt05": 0.037,
+  "quiet_median_roti": 0.023
+ },
+ "DARW": {
+  "geomag_lat": -21.2,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.001,
+   "2026-10-05": 0.0
+  },
+  "peak_1h_median_roti": 0.089,
+  "peak_time": "2026-10-04 00:00:00+00:00",
+  "median_roti": 0.054,
+  "quiet_frac_gt05": 0.01,
+  "quiet_median_roti": 0.055
+ },
+ "HOB2": {
+  "geomag_lat": -49.5,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.003,
+   "2026-10-05": 0.0
+  },
+  "peak_1h_median_roti": 0.174,
+  "peak_time": "2026-10-04 16:05:00+00:00",
+  "median_roti": 0.034,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.027
+ },
+ "MCM4": {
+  "geomag_lat": -79.1,
+  "frac_gt05_by_day": {
+   "2026-10-04": 0.311,
+   "2026-10-05": 0.242
+  },
+  "peak_1h_median_roti": 1.018,
+  "peak_time": "2026-10-05 19:50:00+00:00",
+  "median_roti": 0.286,
+  "quiet_frac_gt05": 0.163,
+  "quiet_median_roti": 0.241
+ }
+}

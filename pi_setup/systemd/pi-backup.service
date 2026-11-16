@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly database backup to Google Drive
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# --- EDIT user to match your Pi ---
+User=YOUR_USER
+ExecStart=/home/YOUR_USER/pi-backup/pi_backup.sh

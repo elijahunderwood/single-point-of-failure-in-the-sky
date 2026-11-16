@@ -1,0 +1,178 @@
+{
+ "THU2": {
+  "geomag_lat": 85.7,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.189
+  },
+  "peak_1h_median_roti": 0.902,
+  "peak_time": "2026-10-10 16:20:00+00:00",
+  "median_roti": 0.188,
+  "quiet_frac_gt05": 0.137,
+  "quiet_median_roti": 0.197
+ },
+ "NYA1": {
+  "geomag_lat": 76.3,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.445
+  },
+  "peak_1h_median_roti": 0.952,
+  "peak_time": "2026-10-10 19:10:00+00:00",
+  "median_roti": 0.446,
+  "quiet_frac_gt05": 0.121,
+  "quiet_median_roti": 0.19
+ },
+ "REYK": {
+  "geomag_lat": 68.8,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.192
+  },
+  "peak_1h_median_roti": 1.011,
+  "peak_time": "2026-10-10 18:30:00+00:00",
+  "median_roti": 0.165,
+  "quiet_frac_gt05": 0.008,
+  "quiet_median_roti": 0.046
+ },
+ "YELL": {
+  "geomag_lat": 68.5,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.395
+  },
+  "peak_1h_median_roti": 1.8,
+  "peak_time": "2026-10-10 18:30:00+00:00",
+  "median_roti": 0.377,
+  "quiet_frac_gt05": 0.009,
+  "quiet_median_roti": 0.045
+ },
+ "TRO1": {
+  "geomag_lat": 67.5,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.28
+  },
+  "peak_1h_median_roti": 0.998,
+  "peak_time": "2026-10-10 18:15:00+00:00",
+  "median_roti": 0.259,
+  "quiet_frac_gt05": 0.058,
+  "quiet_median_roti": 0.048
+ },
+ "KIRU": {
+  "geomag_lat": 65.6,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.235
+  },
+  "peak_1h_median_roti": 1.59,
+  "peak_time": "2026-10-10 18:10:00+00:00",
+  "median_roti": 0.177,
+  "quiet_frac_gt05": 0.015,
+  "quiet_median_roti": 0.047
+ },
+ "MORP": {
+  "geomag_lat": 57.2,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.008
+  },
+  "peak_1h_median_roti": 0.18,
+  "peak_time": "2026-10-10 18:30:00+00:00",
+  "median_roti": 0.03,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.021
+ },
+ "HERS": {
+  "geomag_lat": 52.7,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.0
+  },
+  "peak_1h_median_roti": 0.068,
+  "peak_time": "2026-10-10 18:40:00+00:00",
+  "median_roti": 0.027,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.018
+ },
+ "BRUX": {
+  "geomag_lat": 52.0,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.0
+  },
+  "peak_1h_median_roti": 0.056,
+  "peak_time": "2026-10-10 18:50:00+00:00",
+  "median_roti": 0.027,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.015
+ },
+ "PIE1": {
+  "geomag_lat": 41.6,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.0
+  },
+  "peak_1h_median_roti": 0.048,
+  "peak_time": "2026-10-10 20:35:00+00:00",
+  "median_roti": 0.026,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.022
+ },
+ "MAS1": {
+  "geomag_lat": 32.5,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.0
+  },
+  "peak_1h_median_roti": 0.057,
+  "peak_time": "2026-10-10 19:45:00+00:00",
+  "median_roti": 0.032,
+  "quiet_frac_gt05": 0.01,
+  "quiet_median_roti": 0.03
+ },
+ "KOUR": {
+  "geomag_lat": 13.9,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.059
+  },
+  "peak_1h_median_roti": 0.458,
+  "peak_time": "2026-10-10 02:35:00+00:00",
+  "median_roti": 0.047,
+  "quiet_frac_gt05": 0.027,
+  "quiet_median_roti": 0.034
+ },
+ "BOGT": {
+  "geomag_lat": 13.8,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.643
+  },
+  "peak_1h_median_roti": 4.167,
+  "peak_time": "2026-10-10 02:40:00+00:00",
+  "median_roti": 2.911,
+  "quiet_frac_gt05": 0.014,
+  "quiet_median_roti": 0.052
+ },
+ "DARW": {
+  "geomag_lat": -21.2,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.0
+  },
+  "peak_1h_median_roti": 0.08,
+  "peak_time": "2026-10-10 12:30:00+00:00",
+  "median_roti": 0.055,
+  "quiet_frac_gt05": 0.01,
+  "quiet_median_roti": 0.055
+ },
+ "HOB2": {
+  "geomag_lat": -49.5,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.002
+  },
+  "peak_1h_median_roti": 0.091,
+  "peak_time": "2026-10-10 13:00:00+00:00",
+  "median_roti": 0.042,
+  "quiet_frac_gt05": 0.0,
+  "quiet_median_roti": 0.027
+ },
+ "MCM4": {
+  "geomag_lat": -79.1,
+  "frac_gt05_by_day": {
+   "2026-10-10": 0.335
+  },
+  "peak_1h_median_roti": 0.669,
+  "peak_time": "2026-10-10 19:25:00+00:00",
+  "median_roti": 0.339,
+  "quiet_frac_gt05": 0.163,
+  "quiet_median_roti": 0.241
+ }
+}

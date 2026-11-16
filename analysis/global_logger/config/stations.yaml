@@ -1,0 +1,21 @@
+# Stations served WITHOUT login by the Geoscience Australia GNSS Data Repository
+# (data.gnss.ga.gov.au). Coordinates, geomagnetic latitude, receiver and sample
+# interval are read from each RINEX header and stored in the `stations` table.
+stations:
+  - {code: THU2, name: "Thule/Pituffik, Greenland",  band: polar cap}
+  - {code: NYA1, name: "Ny-Alesund, Svalbard",        band: polar cap}
+  - {code: TRO1, name: "Tromso, Norway",              band: auroral}
+  - {code: KIRU, name: "Kiruna, Sweden",              band: auroral}
+  - {code: YELL, name: "Yellowknife, Canada",         band: auroral}
+  - {code: REYK, name: "Reykjavik, Iceland",          band: auroral/sub-auroral}
+  - {code: MORP, name: "Morpeth, England (nearest to Belfast latitude)", band: sub-auroral}
+  - {code: HERS, name: "Herstmonceux, England",       band: sub-auroral}
+  - {code: BRUX, name: "Brussels, Belgium",           band: mid-latitude}
+  - {code: PIE1, name: "Pie Town, New Mexico, USA",   band: mid-latitude}
+  - {code: MAS1, name: "Maspalomas, Canary Islands",  band: low/mid-latitude}
+  - {code: KOUR, name: "Kourou, French Guiana",       band: low-latitude (crest)}
+  - {code: NKLG, name: "Libreville, Gabon",           band: equatorial}
+  - {code: BOGT, name: "Bogota, Colombia",            band: equatorial/low}
+  - {code: DARW, name: "Darwin, Australia",           band: low-latitude}
+  - {code: HOB2, name: "Hobart, Tasmania",            band: mid-latitude (south)}
+  - {code: MCM4, name: "McMurdo, Antarctica",         band: polar cap (south)}

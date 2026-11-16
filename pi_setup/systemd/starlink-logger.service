@@ -1,0 +1,31 @@
+[Unit]
+Description=Starlink history logger (gRPC -> SQLite)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# --- EDIT THESE PATHS / USER to match your Pi ---
+# 1. Where you cloned sparky8512/starlink-grpc-tools:
+Environment=PYTHONPATH=/home/YOUR_USER/starlink-grpc-tools
+# 2. Where this script lives, and where the DB is written:
+WorkingDirectory=/home/YOUR_USER/starlink-logger
+# 3. IMPORTANT: use the VIRTUAL ENV's python, not /usr/bin/python3.
+#    This is what avoids the externally-managed-environment problem.
+ExecStart=/home/YOUR_USER/starlink-venv/bin/python3 /home/YOUR_USER/starlink-logger/starlink_logger.py \
+    --db /home/YOUR_USER/starlink-logger/starlink_history.db \
+    --interval 300
+# 4. The Linux user to run as:
+User=YOUR_USER
+
+# Resilience: restart on any exit, wait 15 s between attempts.
+Restart=always
+RestartSec=15
+
+# Send stdout/stderr to the journal (view with: journalctl -u starlink-logger -f)
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

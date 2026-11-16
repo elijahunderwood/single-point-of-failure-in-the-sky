@@ -1,0 +1,27 @@
+[Unit]
+Description=GNSS/TEC logger (u-blox F9P -> SQLite)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# --- EDIT paths / user to match your Pi ---
+Environment=PYTHONPATH=/home/YOUR_USER/starlink-grpc-tools
+WorkingDirectory=/home/YOUR_USER/gnss-logger
+ExecStart=/home/YOUR_USER/starlink-venv/bin/python3 /home/YOUR_USER/gnss-logger/gnss_logger.py \
+    --port /dev/ttyACM0 \
+    --db /home/YOUR_USER/gnss-logger/gnss_tec.db
+User=YOUR_USER
+
+# Let the port settle on boot before starting
+ExecStartPre=/bin/sleep 5
+
+Restart=always
+RestartSec=15
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
