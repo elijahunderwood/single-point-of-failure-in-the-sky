@@ -4,6 +4,8 @@
 
 Space weather as a common-mode threat to satellite navigation and satellite broadband.
 
+A longer research write-up is in [`docs/Full_Write-up.pdf`](docs/Full_Write-up.pdf).
+
 This repository holds the measurement and analysis code for Elijah Underwood's Sentinus Young Innovators project (entry YI0046; finals 26 November 2026, Ulster University, Belfast). The work uses a u-blox ZED-F9P Global Navigation Satellite System (GNSS) receiver on a simpleRTK2B board in Belfast, together with public space-weather and GNSS archives.
 
 The published site location is **Belfast, approximately 54.6°N, 5.9°W**. Exact receiver coordinates are not included.
@@ -37,6 +39,7 @@ Kp is quasi-logarithmic. The ROTI cut-off of 0.5 TECU/min used as “disturbed�
 | `pi_setup/` | Example systemd units, crontab, database watchdog, Wi-Fi watchdog, backup scripts and email-command helpers, with secrets removed. |
 | `data/sample/` | Tiny public or derived samples (Kp, Dst, a quiet-versus-storm hourly ROTI table, and the dashboard's typical-day ROTI profile). The full databases are not in this repository. |
 | `config.example.env` | Placeholders for private settings. Copy to a gitignored `.env` or a systemd `EnvironmentFile`. |
+| `docs/Full_Write-up.pdf` | Full research write-up (PDF). |
 
 On the measurement Pi the loggers were installed under the account's home directory with the original folder names (`gnss-logger`, `flare_logger`, and so on). The copies here keep those names inside `logger/` so that paths in the scripts stay recognisable. Adjust `YOUR_USER` in the example units before reuse.
 
