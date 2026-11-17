@@ -250,13 +250,50 @@ def typical_roti():
 
 
 # ---- data gathering ------------------------------------------------------------
+# NOAA activity / G-scale bins use Kp in thirds (Kp is quasi-logarithmic):
+#   Quiet / normal: Kp below 4  (below 4-, which is 3.67)
+#   Active:         Kp 4 to under 5  (4-/4/4+ = 3.67, 4.00, 4.33) — just below G1
+#   G1 to G5:       Kp 5, 6, 7, 8, 9  (each starts at n-, e.g. G1 at 4.67)
+KP_ACTIVE, KP_G1, KP_G2, KP_G3, KP_G4, KP_G5 = 3.67, 4.67, 5.67, 6.67, 7.67, 8.67
+
 def g_scale(kp):
     if kp is None:
         return None
-    for lim, g in ((8.67, 5), (7.67, 4), (6.67, 3), (5.67, 2), (4.67, 1)):
+    for lim, g in ((KP_G5, 5), (KP_G4, 4), (KP_G3, 3), (KP_G2, 2), (KP_G1, 1)):
         if kp >= lim:
             return g
     return 0
+
+
+def kp_status(kp):
+    """Public-facing Kp classification for the live feed. None if kp is missing."""
+    if kp is None:
+        return None
+    g = g_scale(kp)
+    if kp < KP_ACTIVE:
+        return dict(level="ok", word="Quiet / normal", chip="QUIET", g=g,
+                    gtxt="No storm (below G1)",
+                    explain="Earth's magnetic field is calm. This is normal.")
+    if kp < KP_G1:
+        return dict(level="warn", word="Active", chip="ACTIVE", g=g,
+                    gtxt="Active — just below G1 storm level",
+                    explain="Active — just below G1 storm level. Not a storm, but this is not normal quiet.")
+    names = {
+        1: ("G1 minor storm", "G1 STORM", "warn",
+            "G1 minor storm. Some effects on satellites and radio are possible, still well below our GPS-trouble line."),
+        2: ("G2 moderate storm", "G2 STORM", "alert",
+            "G2 moderate storm. Effects on satellites and radio can spread, still below our GPS-trouble line."),
+        3: ("G3 strong storm", "G3 STORM", "bad",
+            "G3 strong storm. This is near our GPS-trouble line."),
+        4: ("G4 severe storm", "G4 STORM", "bad",
+            "G4 severe storm. This is above our GPS-trouble line."),
+        5: ("G5 extreme storm", "G5 STORM", "bad",
+            "G5 extreme storm. This is well above our GPS-trouble line."),
+    }
+    word, chip, level, explain = names[g]
+    adj = {1: "minor", 2: "moderate", 3: "strong", 4: "severe", 5: "extreme"}[g]
+    return dict(level=level, word=word, chip=chip, g=g,
+                gtxt=f"Storm scale G{g} ({adj})", explain=explain)
 
 
 def flare_class(flux):
@@ -419,7 +456,7 @@ def get_weather():
 
 
 # ---- SVG charts ---------------------------------------------------------------------
-C_OK, C_WARN, C_BAD, C_STALE = "#3ddc97", "#ffb020", "#ff5d5d", "#7c8aa5"
+C_OK, C_WARN, C_ALERT, C_BAD, C_STALE = "#3ddc97", "#ffb020", "#ff7a2e", "#ff5d5d", "#7c8aa5"
 
 
 def spark(series, ymin, ymax, color, lines=(), bars=False, w=300, h=64, log=False, fill=True):
@@ -478,14 +515,20 @@ def spark(series, ymin, ymax, color, lines=(), bars=False, w=300, h=64, log=Fals
 
 
 def kp_color(v):
-    return C_BAD if v >= 6.67 else (C_WARN if v >= 4.67 else C_OK)
+    if v >= KP_G3:
+        return C_BAD
+    if v >= KP_G2:
+        return C_ALERT
+    if v >= KP_ACTIVE:
+        return C_WARN
+    return C_OK
 
 
 def kp_gauge(kp):
     W, H = 400, 74
     x = lambda v: 10 + v / 9.0 * 380
     o = [f'<svg class="gauge" viewBox="0 0 {W} {H}" role="img">']
-    segs = [(0, 4.67, C_OK), (4.67, 6.67, C_WARN), (6.67, 9, C_BAD)]
+    segs = [(0, KP_ACTIVE, C_OK), (KP_ACTIVE, KP_G2, C_WARN), (KP_G2, KP_G3, C_ALERT), (KP_G3, 9, C_BAD)]
     for a, b, col in segs:
         o.append(f'<rect x="{x(a):.1f}" y="30" width="{x(b)-x(a):.1f}" height="16" fill="{col}" opacity=".85"/>')
     o.append(f'<rect x="10" y="30" width="380" height="16" rx="8" fill="none" stroke="#0b1226" stroke-width="3"/>')
@@ -504,7 +547,7 @@ def kp_gauge(kp):
 
 
 # ---- tiles ------------------------------------------------------------------------------
-LEVELS = {"ok": ("t-ok", None), "warn": ("t-warn", None), "bad": ("t-bad", None), "stale": ("t-stale", "NO DATA")}
+LEVELS = {"ok": ("t-ok", None), "warn": ("t-warn", None), "alert": ("t-alert", None), "bad": ("t-bad", None), "stale": ("t-stale", "NO DATA")}
 
 
 def tile(title, badge, level, chip, big, unit, subs, viz, cap, mean, stale_note=None):
@@ -557,7 +600,7 @@ def build(snapshot=False):
     details = {}
 
     def lvl_num(l):
-        return {"ok": 0, "warn": 1, "bad": 2}.get(l, 0)
+        return {"ok": 0, "warn": 1, "alert": 2, "bad": 3}.get(l, 0)
 
     def check(name, ts, limit_min, fetch=None):
         """Staleness: use the most recent of the data timestamp and the last successful fetch."""
@@ -573,17 +616,16 @@ def build(snapshot=False):
 
     # 1. Storm level (Kp) -----------------------------------------------------------------
     kp_level, kp_word, kp_chip = "stale", "No data", "NO DATA"
+    kp_explain = ""
     if sp and sp.get("kp") is not None:
         kp = sp["kp"]
-        g = g_scale(kp)
-        kp_level = "bad" if kp >= 6.67 else ("warn" if kp >= 4.67 else "ok")
-        kp_word = ("Quiet" if kp < 3.67 else "Unsettled" if kp < 4.67 else "Minor storm" if kp < 6.67 else "Strong storm")
-        kp_chip = {"ok": "QUIET" if kp < 3.67 else "UNSETTLED", "warn": "STORM", "bad": "STRONG STORM"}[kp_level]
+        st = kp_status(kp)
+        kp_level, kp_word, kp_chip = st["level"], st["word"], st["chip"]
+        kp_explain = st["explain"]
         sn = check("Kp", None, 60, sp.get("kp_fetch"))
-        gtxt = f"Storm scale G{g}" if g else "No storm (scale G0)"
         w0 = sp["kp_ts"]
         pk = max([v for t, v in sp["kp_series"] if t >= NOW - timedelta(hours=24)] or [kp])
-        sub = [f"{gtxt} · {uk(w0)}–{uk(w0 + timedelta(hours=3))} UK",
+        sub = [f"{st['gtxt']} · {uk(w0)}–{uk(w0 + timedelta(hours=3))} UK",
                f"24 h peak: Kp {pk:.1f} · 10 Oct storm: Kp {STORM_KP_10OCT}"]
         series = [(t, v) for t, v in sp["kp_series"]]
         viz = kp_gauge(kp)
@@ -768,12 +810,12 @@ def build(snapshot=False):
     if kp_level == "stale":
         head_cls, head_word = "t-stale", "Unknown"
     else:
-        head_cls = {0: "t-ok", 1: "t-warn", 2: "t-bad"}[worst]
+        head_cls = {0: "t-ok", 1: "t-warn", 2: "t-alert", 3: "t-bad"}[worst]
         head_word = kp_word
-        if worst == 2 and kp_level != "bad":
-            head_word = "Disturbed"
-        elif worst == 1 and kp_level == "ok":
-            head_word = "Active"
+        # If another sensor is in a worse state than Kp, say so in the headline.
+        kp_n = lvl_num(kp_level)
+        if worst > kp_n:
+            head_word = "Disturbed" if worst >= 2 else "Active"
     if nav and nav.get("n", 0) >= 1:
         if nav["n_dist"] >= 2:
             line2 = f"Our Belfast receiver is seeing a <b>disturbed ionosphere</b>: {nav['n_dist']} of {nav['n']} satellites affected."
@@ -784,7 +826,8 @@ def build(snapshot=False):
     else:
         line2 = "Our Belfast receiver has no recent ionosphere reading."
     kp_txt = f"Kp {sp['kp']:.1f}" if sp and sp.get("kp") is not None else "Kp unknown"
-    line1 = (f"{kp_txt} on the 0–9 scale. Our measurements say satellite navigation starts to be disturbed at about "
+    prefix = (kp_explain + " ") if kp_explain else ""
+    line1 = (f"{prefix}{kp_txt} on the 0–9 scale. Our measurements say satellite navigation starts to be disturbed at about "
              f"<b>Kp {KP_THRESHOLD}</b>.")
 
     gen = NOW
@@ -829,7 +872,7 @@ background:linear-gradient(90deg,color-mix(in srgb,var(--c) 28%,#0d1630) 0%,#0d1
 .grid{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(max-content,1fr);gap:clamp(8px,.9vw,14px)}
 .tile{--c:#7c8aa5;position:relative;background:linear-gradient(180deg,#121c3b 0%,#0e1631 100%);border:1px solid #243257;border-top:5px solid var(--c);
 border-radius:16px;padding:clamp(6px,1vh,12px) clamp(10px,1vw,16px);display:flex;flex-direction:column}
-.t-ok{--c:#3ddc97}.t-warn{--c:#ffb020}.t-bad{--c:#ff5d5d}.t-stale{--c:#7c8aa5}
+.t-ok{--c:#3ddc97}.t-warn{--c:#ffb020}.t-alert{--c:#ff7a2e}.t-bad{--c:#ff5d5d}.t-stale{--c:#7c8aa5}
 .th{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .th h2{font-size:clamp(13px,1.2vw,20px);font-weight:700;color:#fff}
 .chip{font-size:clamp(10px,.8vw,13px);font-weight:800;letter-spacing:.8px;color:#08101f;background:var(--c);padding:3px 9px;border-radius:99px;white-space:nowrap}
