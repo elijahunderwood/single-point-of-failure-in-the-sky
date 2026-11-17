@@ -86,17 +86,11 @@ The public repository is <https://github.com/elijahunderwood/single-point-of-fai
 
 ## How to cite
 
-Please cite this software. A `CITATION.cff` file is included. Once a frozen copy is archived on Zenodo, replace the placeholder digital object identifier (DOI) in that file and cite the DOI, for example:
+Please cite this software using its Zenodo digital object identifier (DOI). This DOI covers all versions and always points to the latest release. A `CITATION.cff` file is also included.
 
-> Underwood, E. (2026). *A Single Point of Failure in the Sky: Space weather as a common-mode threat to satellite navigation and satellite broadband* (Version 1.0.0). Zenodo. https://doi.org/10.5281/zenodo.XXXXXXXX
+> Underwood, E. (2026). *A Single Point of Failure in the Sky: Space weather as a common-mode threat to satellite navigation and satellite broadband* [Software]. Zenodo. https://doi.org/10.5281/zenodo.24314546
 
 ## Licence
 
 The project code is released under the MIT Licence (see `LICENSE`). Third-party tools such as starlink-grpc-tools remain under their own licences. Public data archives remain under their own terms of use.
 
-
-## How to cite
-
-Underwood, E. (2026). *A Single Point of Failure in the Sky: Space weather as a common-mode threat to satellite navigation and satellite broadband* [Software]. Zenodo. https://doi.org/10.5281/zenodo.24314546
-
-This DOI covers all versions and always points to the latest release.
