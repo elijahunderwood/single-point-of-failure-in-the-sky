@@ -2,10 +2,10 @@
 # Wi-Fi watchdog for the Raspberry Pi space-weather station (added 2026-10-17).
 # Run every 5 min by wifi-watchdog.timer. Never reboots.
 # Failure = no default route, or BOTH the gateway and 1.1.1.1 fail to answer ping.
-#   >=3 consecutive failures (~15 min): nmcli con up Starlink888 (at most once per 10 min)
+#   >=3 consecutive failures (~15 min): nmcli con up YOUR_WIFI_CONNECTION (at most once per 10 min)
 #   >=6 consecutive failures (~30 min): restart NetworkManager (at most once per 60 min)
 # Options: DRY_RUN=1 (log actions without doing them), SIMULATE_FAIL=1 (pretend pings failed).
-CON="Starlink888"
+CON="YOUR_WIFI_CONNECTION"
 IFACE="wlan0"
 STATE_DIR=${STATE_DIR:-/var/lib/wifi-watchdog}
 LOG=${LOG:-/var/log/wifi-watchdog.log}

@@ -1,5 +1,5 @@
 [Unit]
-Description=Wi-Fi watchdog (re-connect Starlink888 if the network is lost)
+Description=Wi-Fi watchdog (re-connect YOUR_WIFI_CONNECTION if the network is lost)
 After=NetworkManager.service
 
 [Service]
