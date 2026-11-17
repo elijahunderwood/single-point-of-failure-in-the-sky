@@ -8,11 +8,11 @@ license: MIT
 authors:
   - family-names: Underwood
     given-names: Elijah
-# After the code is archived on Zenodo, add:
-# doi: 10.5281/zenodo.XXXXXXXX
-# identifiers:
-#   - type: doi
-#     value: 10.5281/zenodo.XXXXXXXX
+doi: 10.5281/zenodo.24314546
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24314546
+    description: Concept DOI (all versions)
 repository-code: https://github.com/elijahunderwood/single-point-of-failure-in-the-sky
 abstract: >
   Data loggers, analysis scripts, interactive simulators and a live dashboard

@@ -1,5 +1,7 @@
 # A Single Point of Failure in the Sky
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24314546.svg)](https://doi.org/10.5281/zenodo.24314546)
+
 Space weather as a common-mode threat to satellite navigation and satellite broadband.
 
 This repository holds the measurement and analysis code for Elijah Underwood's Sentinus Young Innovators project (entry YI0046; finals 26 November 2026, Ulster University, Belfast). The work uses a u-blox ZED-F9P Global Navigation Satellite System (GNSS) receiver on a simpleRTK2B board in Belfast, together with public space-weather and GNSS archives.
@@ -91,3 +93,10 @@ Please cite this software. A `CITATION.cff` file is included. Once a frozen copy
 ## Licence
 
 The project code is released under the MIT Licence (see `LICENSE`). Third-party tools such as starlink-grpc-tools remain under their own licences. Public data archives remain under their own terms of use.
+
+
+## How to cite
+
+Underwood, E. (2026). *A Single Point of Failure in the Sky: Space weather as a common-mode threat to satellite navigation and satellite broadband* [Software]. Zenodo. https://doi.org/10.5281/zenodo.24314546
+
+This DOI covers all versions and always points to the latest release.
